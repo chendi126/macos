@@ -1,20 +1,32 @@
 import { useState } from 'react'
+import Layout from './components/Layout'
+import WorkModeSettings from './pages/WorkModeSettings'
+import AppTracking from './pages/AppTracking'
+import TimeAnalysis from './pages/TimeAnalysis'
 import './App.css'
 
+export type Page = 'work-mode' | 'app-tracking' | 'time-analysis'
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState<Page>('work-mode')
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'work-mode':
+        return <WorkModeSettings />
+      case 'app-tracking':
+        return <AppTracking />
+      case 'time-analysis':
+        return <TimeAnalysis />
+      default:
+        return <WorkModeSettings />
+    }
+  }
 
   return (
-    <div className="App">
-      <h1>Electron + React + TypeScript</h1>
-      <p>最简化的桌面应用程序</p>
-      
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          点击次数: {count}
-        </button>
-      </div>
-    </div>
+    <Layout currentPage={currentPage} onPageChange={setCurrentPage}>
+      {renderCurrentPage()}
+    </Layout>
   )
 }
 

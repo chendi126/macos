@@ -1,0 +1,10 @@
+.__paraflow-fa-fas {font-family: "Font Awesome 6 Free"; display: inline-block; line-height: 1; font-weight: 900; font-style: normal}
+.list-item {background-color: transparent}
+.list-item-active {background-color: rgba(245, 232, 211, 1)}
+.timeline-app {height: 12px; border-top-left-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; border-bottom-left-radius: 6px}
+.__paraflow-fa-fab {font-family: "Font Awesome 6 Brands"; display: inline-block; line-height: 1; font-weight: 400; font-style: normal}
+.app-card {background-color: rgba(249, 247, 244, 1)}
+.app-card-selected {background-color: rgba(255, 255, 255, 1)}
+.nav-item-active {background-color: rgba(245, 232, 211, 1); color: rgba(212, 165, 116, 1)}
+.efficiency-dot {display: inline-block; width: 8px; height: 8px; border-top-left-radius: 50%; border-top-right-radius: 50%; border-bottom-right-radius: 50%; border-bottom-left-radius: 50%}
+.status-badge {padding-top: 4px; padding-right: 8px; padding-bottom: 4px; padding-left: 8px; border-top-left-radius: 9999px; border-top-right-radius: 9999px; border-bottom-right-radius: 9999px; border-bottom-left-radius: 9999px; font-size: 10px}
