@@ -1,5 +1,5 @@
 .work-mode-settings {
-  height: 100vh;
+  height: 100%;
   background-color: #FDFCFA;
   display: flex;
   flex-direction: column;
@@ -120,6 +120,16 @@
   background-color: #F9F7F4;
   padding: 24px;
   overflow-y: auto;
+  min-height: 0;
+}
+
+/* 确保操作按钮区域有足够的底部间距 */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 24px;
 }
 
 .settings-card {
@@ -359,12 +369,7 @@ input:checked + .toggle-label:before {
   font-size: 12px;
 }
 
-/* 操作按钮 */
-.action-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
+/* 操作按钮已在上面定义 */
 
 .delete-button,
 .save-button {
