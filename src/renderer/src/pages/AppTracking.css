@@ -53,6 +53,40 @@
   gap: 8px;
 }
 
+/* 自定义日期选择器 */
+.custom-date-filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  padding: 8px 16px;
+  border: 1px solid #F0EEED;
+  background-color: white;
+  border-radius: 6px;
+  color: #2A2520;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-input:hover {
+  background-color: #F9F7F4;
+}
+
+.date-input:focus {
+  outline: 2px solid #D4A574;
+  border-color: #D4A574;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  color: #8B8073;
+  pointer-events: none;
+}
+
 .export-button {
   display: flex;
   align-items: center;
@@ -118,6 +152,119 @@
 
 .stats-change {
   font-size: 12px;
+  color: #8B8073;
+  margin: 0;
+}
+
+/* 当前活动应用卡片 */
+.current-app-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #F0EEED;
+  border-left: 4px solid #D4A574;
+}
+
+.current-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.current-app-card h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2A2520;
+  margin: 0;
+}
+
+.tracking-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.current-app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.current-app-info .app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.app-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.current-app-info .app-name {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.total-time {
+  font-size: 20px;
+  font-weight: 600;
+  color: #D4A574;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #F0EEED;
+  border-top: 3px solid #D4A574;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 14px;
   color: #8B8073;
   margin: 0;
 }

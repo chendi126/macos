@@ -47,6 +47,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   gap: 12px;
+  text-decoration: none;
 }
 
 .menu-item:hover {

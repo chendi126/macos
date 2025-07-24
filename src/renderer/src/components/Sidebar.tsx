@@ -1,24 +1,21 @@
+import { NavLink, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faCog, 
   faDesktop, 
   faChartLine 
 } from '@fortawesome/free-solid-svg-icons'
-import { Page } from '../App'
 import './Sidebar.css'
 
-interface SidebarProps {
-  currentPage: Page
-  onPageChange: (page: Page) => void
-}
-
 const menuItems = [
-  { id: 'work-mode' as Page, label: '工作模式设置', icon: faCog },
-  { id: 'app-tracking' as Page, label: '应用追踪', icon: faDesktop },
-  { id: 'time-analysis' as Page, label: '时间分析', icon: faChartLine },
+  { path: '/work-mode', label: '工作模式设置', icon: faCog },
+  { path: '/app-tracking', label: '应用追踪', icon: faDesktop },
+  { path: '/time-analysis', label: '时间分析', icon: faChartLine },
 ]
 
-export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
+export default function Sidebar() {
+  const location = useLocation()
+
   return (
     <div className="sidebar">
       <div className="sidebar-section">
@@ -27,16 +24,18 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
         </div>
         <ul className="menu-list">
           {menuItems.map((item) => (
-            <li key={item.id}>
-              <button
-                className={`menu-item ${currentPage === item.id ? 'active' : ''}`}
-                onClick={() => onPageChange(item.id)}
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) => 
+                  `menu-item ${isActive ? 'active' : ''}`
+                }
               >
                 <div className="menu-icon">
                   <FontAwesomeIcon icon={item.icon} />
                 </div>
                 <span className="menu-label">{item.label}</span>
-              </button>
+              </NavLink>
             </li>
           ))}
         </ul>

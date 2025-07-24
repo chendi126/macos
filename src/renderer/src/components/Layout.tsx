@@ -1,30 +1,41 @@
-import { ReactNode } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
 import Sidebar from './Sidebar'
-import { Page } from '../App'
+import AppTimer from './AppTimer'
 import './Layout.css'
 
-interface LayoutProps {
-  children: ReactNode
-  currentPage: Page
-  onPageChange: (page: Page) => void
-}
+export default function Layout() {
+  const location = useLocation()
+  
+  // 根据路径获取页面标题
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/work-mode':
+        return 'Focus Manager'
+      case '/app-tracking':
+        return 'Focus Manager'
+      case '/time-analysis':
+        return 'Focus Manager'
+      default:
+        return 'Focus Manager'
+    }
+  }
 
-export default function Layout({ children, currentPage, onPageChange }: LayoutProps) {
   return (
     <div className="layout">
       {/* Sidebar */}
-      <Sidebar currentPage={currentPage} onPageChange={onPageChange} />
+      <Sidebar />
       
       {/* Main Area */}
       <div className="main-area">
         {/* Header */}
         <header className="header">
           <div className="header-left">
-            <h1 className="header-title">Focus Manager</h1>
+            <h1 className="header-title">{getPageTitle()}</h1>
           </div>
           <div className="header-right">
+            <AppTimer />
             <div className="notification-icon">
               <FontAwesomeIcon icon={faBell} />
             </div>
@@ -39,7 +50,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 
         {/* Main Content */}
         <main className="main-content">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

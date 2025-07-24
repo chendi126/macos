@@ -34,6 +34,10 @@
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@fortawesome/react-fontawesome": "^0.2.3"
+    "@fortawesome/react-fontawesome": "^0.2.3",
+    "@types/react-router-dom": "^5.3.3",
+    "active-win": "^8.2.0",
+    "node-schedule": "^2.1.1",
+    "react-router-dom": "^6.8.1"
   }
 }
