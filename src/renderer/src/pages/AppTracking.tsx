@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
-  faChartBar,
   faClock,
   faChartLine,
   faExclamationTriangle,
@@ -13,7 +12,6 @@ import {
   faFigma,
   faSlack
 } from '@fortawesome/free-brands-svg-icons'
-import Sidebar from '../components/Sidebar'
 import './AppTracking.css'
 
 interface StatsCardProps {
@@ -58,10 +56,7 @@ const timelineData = [
 export default function AppTracking() {
   return (
     <div className="app-tracking">
-      <div className="page-layout">
-        <Sidebar activeMenu="overview" onMenuChange={() => {}} />
-        
-        <div className="main-content">
+      <div className="main-content">
           {/* 时间范围选择和导出按钮 */}
           <div className="content-header">
             <div className="time-filters">
@@ -225,7 +220,6 @@ export default function AppTracking() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   )

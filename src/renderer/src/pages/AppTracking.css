@@ -1,9 +1,353 @@
 .app-tracking {
-  height: 100vh;
+  height: 100%;
   background-color: #FDFCFA;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.app-tracking .main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* 内容头部 */
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.time-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border: 1px solid #F0EEED;
+  background-color: white;
+  border-radius: 6px;
+  color: #2A2520;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background-color: #F9F7F4;
+}
+
+.filter-button.active {
+  background-color: #F5E8D3;
+  border-color: #D4A574;
+  color: #2A2520;
+}
+
+.filter-button.custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #2A2520;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-button:hover {
+  background-color: #1A1815;
+}
+
+/* 统计卡片网格 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stats-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #F0EEED;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stats-title {
+  font-size: 14px;
+  color: #8B8073;
+  margin: 0;
+}
+
+.stats-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #D4A574;
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2A2520;
+  margin: 0 0 4px 0;
+}
+
+.stats-change {
+  font-size: 12px;
+  color: #8B8073;
+  margin: 0;
+}
+
+/* 使用图表卡片 */
+.usage-chart-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #F0EEED;
+}
+
+.usage-chart-card h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2A2520;
+  margin: 0 0 24px 0;
+}
+
+.chart-placeholder {
+  margin-bottom: 24px;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 200px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar {
+  width: 40px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.bar-value {
+  font-size: 12px;
+  color: #2A2520;
+  font-weight: 500;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: #8B8073;
+  text-align: center;
+  max-width: 60px;
+  word-wrap: break-word;
+}
+
+/* 应用列表 */
+.app-list {
+  border: 1px solid #F0EEED;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.list-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 16px;
+  padding: 16px 20px;
+  background-color: #F9F7F4;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8B8073;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 16px;
+  padding: 16px 20px;
+  border-top: 1px solid #F0EEED;
+  transition: all 0.2s ease;
+}
+
+.app-row:hover {
+  background-color: #F9F7F4;
+}
+
+.app-row.selected {
+  background-color: #F5E8D3;
+}
+
+.app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.col-time {
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.col-launches {
+  color: #8B8073;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #F0EEED;
+  color: #8B8073;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+/* 时间轴卡片 */
+.timeline-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #F0EEED;
+}
+
+.timeline-card h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2A2520;
+  margin: 0 0 24px 0;
+}
+
+.timeline-header {
+  margin-bottom: 20px;
+}
+
+.time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #8B8073;
+  margin-bottom: 8px;
+}
+
+.timeline-track {
+  height: 2px;
+  background-color: #F0EEED;
+  border-radius: 1px;
+}
+
+.timeline-apps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.timeline-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.timeline-app-name {
+  width: 80px;
+  font-size: 14px;
+  color: #2A2520;
+  flex-shrink: 0;
+}
+
+.timeline-segments {
+  flex: 1;
+  height: 8px;
+  background-color: #F9F7F4;
+  border-radius: 4px;
+  position: relative;
+}
+
+.timeline-segment {
+  position: absolute;
+  height: 100%;
+  border-radius: 4px;
+  top: 0;
+}
+
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #F0EEED;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
 }
 
 .tracking-header {

@@ -11,7 +11,6 @@ import {
   faCheck,
   faClipboardList
 } from '@fortawesome/free-solid-svg-icons'
-import Sidebar from '../components/Sidebar'
 import './TimeAnalysis.css'
 
 interface StatsCardProps {
@@ -152,10 +151,7 @@ function ChartPlaceholder({ type, data }: ChartPlaceholderProps) {
 export default function TimeAnalysis() {
   return (
     <div className="time-analysis">
-      <div className="page-layout">
-        <Sidebar activeMenu="analysis" onMenuChange={() => {}} />
-        
-        <div className="main-content">
+      <div className="main-content">
           {/* 时间范围选择和操作按钮 */}
           <div className="content-header">
             <div className="time-filters">
@@ -307,7 +303,6 @@ export default function TimeAnalysis() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   )
