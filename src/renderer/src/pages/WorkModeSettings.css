@@ -8,11 +8,42 @@
 .settings-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 60px;
   background-color: #F9F7F4;
   padding: 0 24px;
-  gap: 16px;
   border-bottom: 1px solid #F0EEED;
+}
+
+.mode-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.mode-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn:hover {
+  background-color: #C19660;
+}
+
+.mode-toggle-btn.active {
+  background-color: #D97B5A;
+}
+
+.mode-toggle-btn.active:hover {
+  background-color: #C56B4A;
 }
 
 .back-button {
@@ -92,6 +123,24 @@
 .mode-button.active {
   background-color: #F5E8D3;
   color: #2A2520;
+}
+
+.mode-button.running {
+  border-left: 4px solid #4CAF50;
+}
+
+.mode-name {
+  flex: 1;
+  text-align: left;
+}
+
+.running-indicator {
+  font-size: 10px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
 }
 
 .new-mode-button {
@@ -206,7 +255,31 @@
   background-color: #F9F7F4;
   padding: 12px;
   border-radius: 6px;
-  gap: 8px;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.app-path {
+  font-size: 12px;
+  color: #8B8073;
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-icon {
@@ -447,4 +520,195 @@ input:checked + .toggle-label:before {
   .action-buttons {
     flex-direction: column;
   }
+}
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #F0EEED;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2A2520;
+  margin: 0;
+}
+
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #8B8073;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #F0EEED;
+  color: #2A2520;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #F0EEED;
+}
+
+.cancel-button {
+  padding: 8px 16px;
+  background-color: #F0EEED;
+  color: #2A2520;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #E5E1DD;
+}
+
+.create-button {
+  padding: 8px 16px;
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  background-color: #C19660;
+}
+
+.create-button:disabled {
+  background-color: #D4C4B0;
+  cursor: not-allowed;
+}
+
+/* 错误消息样式 */
+.error-message {
+  background-color: #F8E8E3;
+  color: #D97B5A;
+  padding: 12px 24px;
+  border-left: 4px solid #D97B5A;
+  margin-bottom: 16px;
+}
+
+.error-message p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 加载状态样式 */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #8B8073;
+}
+
+/* 空状态样式 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #8B8073;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+}/
+* 占位文本样式 */
+.placeholder-text {
+  padding: 20px;
+  text-align: center;
+  color: #8B8073;
+  background-color: #F9F7F4;
+  border-radius: 6px;
+  border: 1px dashed #D4C4B0;
+}
+
+.placeholder-text p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 创建第一个模式按钮 */
+.create-first-mode-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #D4A574;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.create-first-mode-button:hover {
+  background-color: #C19660;
+}
+
+/* 改进空状态样式 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #8B8073;
+  text-align: center;
+}
+
+.empty-state p {
+  margin: 0 0 16px 0;
+  font-size: 16px;
 }

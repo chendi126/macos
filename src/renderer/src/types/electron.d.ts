@@ -28,6 +28,15 @@ export interface TodayStats {
   date: string
 }
 
+export interface WorkMode {
+  id: string
+  name: string
+  description: string
+  autoCreateDesktop: boolean
+  createdAt: number
+  updatedAt: number
+}
+
 declare global {
   interface Window {
     electronAPI: {
@@ -35,9 +44,18 @@ declare global {
       getCurrentApp: () => Promise<string | null>
       getTodayStats: () => Promise<TodayStats>
       getCurrentAppStartTime: () => Promise<number>
+      getDataDirectory: () => Promise<string>
+      getTodayDataFilePath: () => Promise<string>
       onAppUsageUpdated: (callback: (data: any) => void) => void
       onAppUsageIncrementalUpdate: (callback: (data: any) => void) => void
       removeAppUsageListener: () => void
+      
+      // 工作模式相关API
+      getAllWorkModes: () => Promise<WorkMode[]>
+      getWorkMode: (id: string) => Promise<WorkMode | null>
+      createWorkMode: (name: string, description?: string) => Promise<WorkMode>
+      updateWorkMode: (id: string, updates: Partial<WorkMode>) => Promise<WorkMode | null>
+      deleteWorkMode: (id: string) => Promise<boolean>
     }
   }
 }

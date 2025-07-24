@@ -1,9 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { AppTracker } from './services/AppTracker'
+import { WorkModeManager } from './services/WorkModeManager'
 
 let mainWindow: BrowserWindow
 let appTracker: AppTracker
+let workModeManager: WorkModeManager
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -27,6 +29,9 @@ function createWindow() {
   // 初始化应用追踪器
   appTracker = new AppTracker(mainWindow)
   appTracker.start()
+
+  // 初始化工作模式管理器
+  workModeManager = new WorkModeManager()
 }
 
 // IPC 处理程序
@@ -49,6 +54,35 @@ ipcMain.handle('get-today-stats', async () => {
 
 ipcMain.handle('get-current-app-start-time', async () => {
   return appTracker.getCurrentAppStartTime()
+})
+
+ipcMain.handle('get-data-directory', async () => {
+  return appTracker.getDataDirectory()
+})
+
+ipcMain.handle('get-today-data-file-path', async () => {
+  return appTracker.getTodayDataFilePath()
+})
+
+// 工作模式相关IPC处理程序
+ipcMain.handle('get-all-work-modes', async () => {
+  return workModeManager.getAllModes()
+})
+
+ipcMain.handle('get-work-mode', async (event, id: string) => {
+  return workModeManager.getMode(id)
+})
+
+ipcMain.handle('create-work-mode', async (event, name: string, description?: string) => {
+  return workModeManager.createMode(name, description)
+})
+
+ipcMain.handle('update-work-mode', async (event, id: string, updates: any) => {
+  return workModeManager.updateMode(id, updates)
+})
+
+ipcMain.handle('delete-work-mode', async (event, id: string) => {
+  return workModeManager.deleteMode(id)
 })
 
 app.whenReady().then(createWindow)
