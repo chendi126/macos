@@ -303,8 +303,8 @@
   margin: 0;
 }
 
-/* 模态框样式 */
-.modal-overlay {
+/* 模态框样式 - 使用Portal渲染到body */
+.auto-start-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -314,10 +314,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1100; /* 比WorkModeSettings的modal更高 */
 }
 
-.modal {
+.auto-start-modal {
   background: #FFFFFF;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -327,9 +327,12 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1101;
+  margin: auto; /* 确保居中 */
 }
 
-.modal-header {
+.auto-start-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -337,14 +340,14 @@
   border-bottom: 1px solid #E5E5E5;
 }
 
-.modal-header h3 {
+.auto-start-modal-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: #2C2C2C;
 }
 
-.close-button {
+.auto-start-close-button {
   background: none;
   border: none;
   font-size: 16px;
@@ -355,18 +358,18 @@
   transition: all 0.2s;
 }
 
-.close-button:hover {
+.auto-start-close-button:hover {
   background: #F5F5F5;
   color: #2C2C2C;
 }
 
-.modal-body {
+.auto-start-modal-body {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
 }
 
-.modal-footer {
+.auto-start-modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;

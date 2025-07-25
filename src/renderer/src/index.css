@@ -6,12 +6,14 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f0f0f0;
+  overflow: hidden;
 }
 
 #root {
   width: 100%;
   height: 100vh;
 }
+
 /* 鼠标跟随背景效果 */
 .mouse-follow-bg {
   position: fixed;
@@ -21,10 +23,10 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: -1;
-  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
-    rgba(212, 165, 116, 0.15) 0%, 
-    rgba(212, 165, 116, 0.05) 40%, 
-    transparent 80%);
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(212, 165, 116, 0.15) 0%,
+      rgba(212, 165, 116, 0.05) 40%,
+      transparent 80%);
   transition: background 0.3s ease;
 }
 
@@ -55,13 +57,13 @@ body {
   align-items: center;
   gap: 16px;
   position: relative;
-  min-height: 320px; /* 固定最小高度确保标签对齐 */
-  justify-content: flex-end; /* 让内容从底部对齐 */
+  min-height: 320px;
+  justify-content: flex-end;
 }
 
 .modern-bar {
   width: 60px;
-  border-radius: 4px; /* 简单的长方形，圆角很小 */
+  border-radius: 4px;
   position: relative;
   background: var(--bar-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -101,7 +103,7 @@ body {
   font-weight: 500;
   text-align: center;
   width: 80px;
-  height: 40px; /* 固定高度确保对齐 */
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,25 +215,20 @@ body {
   font-size: 12px;
   font-weight: 500;
   border: 1px solid rgba(212, 165, 116, 0.2);
-}/*
- 增强的毛玻璃卡片效果 */
+}
+
+/* 增强的毛玻璃卡片效果 */
 .glass-card {
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(25px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    0 12px 40px rgba(42, 37, 32, 0.15),
-    0 4px 20px rgba(42, 37, 32, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px rgba(42, 37, 32, 0.15), 0 4px 20px rgba(42, 37, 32, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .glass-card:hover {
   background: rgba(255, 255, 255, 0.35);
-  box-shadow: 
-    0 20px 60px rgba(42, 37, 32, 0.2),
-    0 8px 30px rgba(42, 37, 32, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 60px rgba(42, 37, 32, 0.2), 0 8px 30px rgba(42, 37, 32, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   transform: translateY(-2px);
 }
 
@@ -240,20 +237,12 @@ body {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(30px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 15px 50px rgba(42, 37, 32, 0.18),
-    0 6px 25px rgba(42, 37, 32, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 50px rgba(42, 37, 32, 0.18), 0 6px 25px rgba(42, 37, 32, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .stats-card.glass-card:hover {
   background: rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    0 25px 70px rgba(42, 37, 32, 0.25),
-    0 10px 35px rgba(42, 37, 32, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 25px 70px rgba(42, 37, 32, 0.25), 0 10px 35px rgba(42, 37, 32, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-4px) scale(1.02);
 }
 
@@ -262,20 +251,12 @@ body {
   background: rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(35px) saturate(220%);
   border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 
-    0 18px 55px rgba(42, 37, 32, 0.2),
-    0 8px 28px rgba(42, 37, 32, 0.14),
-    inset 0 2px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 18px 55px rgba(42, 37, 32, 0.2), 0 8px 28px rgba(42, 37, 32, 0.14), inset 0 2px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .current-app-card.glass-card:hover {
   background: rgba(255, 255, 255, 0.38);
-  box-shadow: 
-    0 28px 75px rgba(42, 37, 32, 0.28),
-    0 12px 38px rgba(42, 37, 32, 0.2),
-    inset 0 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow: 0 28px 75px rgba(42, 37, 32, 0.28), 0 12px 38px rgba(42, 37, 32, 0.2), inset 0 2px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(255, 255, 255, 0.45);
   transform: translateY(-6px);
 }
 
@@ -284,11 +265,7 @@ body {
   background: rgba(255, 255, 255, 0.32) !important;
   backdrop-filter: blur(40px) saturate(250%) !important;
   border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 
-    0 20px 60px rgba(42, 37, 32, 0.22) !important,
-    0 10px 30px rgba(42, 37, 32, 0.16) !important,
-    inset 0 2px 0 rgba(255, 255, 255, 0.85) !important,
-    inset 0 -1px 0 rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 20px 60px rgba(42, 37, 32, 0.22), 0 10px 30px rgba(42, 37, 32, 0.16), inset 0 2px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
 /* 增强时间轴卡片的毛玻璃效果 */
@@ -296,20 +273,12 @@ body {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(32px) saturate(210%);
   border: 1px solid rgba(255, 255, 255, 0.48);
-  box-shadow: 
-    0 16px 52px rgba(42, 37, 32, 0.19),
-    0 7px 26px rgba(42, 37, 32, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.32);
+  box-shadow: 0 16px 52px rgba(42, 37, 32, 0.19), 0 7px 26px rgba(42, 37, 32, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.32);
 }
 
 .timeline-card.glass-card:hover {
   background: rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    0 26px 72px rgba(42, 37, 32, 0.26),
-    0 11px 36px rgba(42, 37, 32, 0.19),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.42);
+  box-shadow: 0 26px 72px rgba(42, 37, 32, 0.26), 0 11px 36px rgba(42, 37, 32, 0.19), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(255, 255, 255, 0.42);
   transform: translateY(-3px);
 }
 
@@ -318,10 +287,7 @@ body {
   background: rgba(255, 255, 255, 0.35) !important;
   backdrop-filter: blur(28px) saturate(190%) !important;
   border: 1px solid rgba(255, 255, 255, 0.42) !important;
-  box-shadow: 
-    0 14px 48px rgba(42, 37, 32, 0.17) !important,
-    0 6px 24px rgba(42, 37, 32, 0.11) !important,
-    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 14px 48px rgba(42, 37, 32, 0.17), 0 6px 24px rgba(42, 37, 32, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
 }
 
 /* 增强按钮的毛玻璃效果 */
@@ -329,18 +295,12 @@ body {
   background: rgba(42, 37, 32, 0.8);
   backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 8px 32px rgba(42, 37, 32, 0.3),
-    0 4px 16px rgba(42, 37, 32, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(42, 37, 32, 0.3), 0 4px 16px rgba(42, 37, 32, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 .export-button.glass-card:hover {
   background: rgba(42, 37, 32, 0.9);
-  box-shadow: 
-    0 12px 40px rgba(42, 37, 32, 0.4),
-    0 6px 20px rgba(42, 37, 32, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px rgba(42, 37, 32, 0.4), 0 6px 20px rgba(42, 37, 32, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-2px) scale(1.05);
 }

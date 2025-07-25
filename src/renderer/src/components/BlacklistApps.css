@@ -183,3 +183,77 @@
 .process-search::placeholder {
   color: #999999;
 }
+
+/* BlacklistApps模态框样式 - 使用Portal渲染到body */
+.blacklist-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100; /* 比WorkModeSettings的modal更高 */
+}
+
+.blacklist-modal {
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px; /* 比AutoStartApps稍宽，因为有进程列表 */
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1101;
+  margin: auto; /* 确保居中 */
+}
+
+.blacklist-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.blacklist-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2C2C2C;
+}
+
+.blacklist-close-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.blacklist-close-button:hover {
+  background: #F5F5F5;
+  color: #2C2C2C;
+}
+
+.blacklist-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.blacklist-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #E5E5E5;
+}

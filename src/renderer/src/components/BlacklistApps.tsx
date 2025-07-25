@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPlus,
@@ -55,6 +57,20 @@ export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
   useEffect(() => {
     if (showAddDialog) {
       loadRunningProcesses()
+    }
+  }, [showAddDialog])
+
+  // 当弹窗显示时，隐藏横向滚动条
+  useEffect(() => {
+    if (showAddDialog) {
+      document.body.style.overflowX = 'hidden'
+    } else {
+      document.body.style.overflowX = ''
+    }
+
+    // 清理函数
+    return () => {
+      document.body.style.overflowX = ''
     }
   }, [showAddDialog])
 
@@ -230,99 +246,171 @@ export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
         </div>
       )}
 
-      {/* 添加黑名单应用对话框 */}
-      {showAddDialog && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>添加黑名单应用</h3>
-              <button
-                className="close-button"
-                onClick={() => setShowAddDialog(false)}
+      {/* 添加黑名单应用对话框 - 使用Portal渲染到body */}
+      {showAddDialog && createPortal(
+        <AnimatePresence>
+          <motion.div 
+            className="blacklist-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowAddDialog(false)}
+          >
+            <motion.div 
+              className="blacklist-modal"
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.div 
+                className="blacklist-modal-header"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
               >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>应用名称</label>
-                <input
-                  type="text"
-                  value={newApp.name}
-                  onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
-                  className="form-input"
-                  placeholder="输入应用名称"
-                />
-              </div>
-              <div className="form-group">
-                <label>进程名称</label>
-                <input
-                  type="text"
-                  value={newApp.processName}
-                  onChange={(e) => setNewApp(prev => ({ ...prev, processName: e.target.value }))}
-                  className="form-input"
-                  placeholder="例如: chrome.exe"
-                />
-              </div>
-              <div className="form-group">
-                <div className="process-list-header">
-                  <label>运行中的进程</label>
-                  <button
-                    className="refresh-button"
-                    onClick={loadRunningProcesses}
-                    disabled={loadingProcesses}
-                  >
-                    <FontAwesomeIcon icon={faRefresh} spin={loadingProcesses} />
-                    刷新
-                  </button>
-                </div>
-                <div className="process-list">
-                  {loadingProcesses ? (
-                    <div className="loading">加载中...</div>
-                  ) : runningProcesses.length === 0 ? (
-                    <div className="no-processes">无法获取进程列表</div>
-                  ) : (
-                    runningProcesses.slice(0, 20).map((process) => (
-                      <button
-                        key={process}
-                        className="process-item"
-                        onClick={() => handleSelectProcess(process)}
-                      >
-                        {process}
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={newApp.enabled}
-                    onChange={(e) => setNewApp(prev => ({ ...prev, enabled: e.target.checked }))}
+                <h3>添加黑名单应用</h3>
+                <motion.button
+                  className="blacklist-close-button"
+                  onClick={() => setShowAddDialog(false)}
+                  whileHover={{ 
+                    scale: 1.1,
+                    rotate: 90,
+                    backgroundColor: "rgba(240, 238, 237, 1)"
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </motion.button>
+              </motion.div>
+              <motion.div 
+                className="blacklist-modal-body"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+              >
+                <div className="form-group">
+                  <label>应用名称</label>
+                  <motion.input
+                    type="text"
+                    value={newApp.name}
+                    onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
+                    className="form-input"
+                    placeholder="输入应用名称"
+                    whileFocus={{ 
+                      scale: 1.02,
+                      boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                    }}
                   />
-                  <span>启用此黑名单规则</span>
-                </label>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="cancel-button"
-                onClick={() => setShowAddDialog(false)}
+                </div>
+                <div className="form-group">
+                  <label>进程名称</label>
+                  <motion.input
+                    type="text"
+                    value={newApp.processName}
+                    onChange={(e) => setNewApp(prev => ({ ...prev, processName: e.target.value }))}
+                    className="form-input"
+                    placeholder="例如: chrome.exe"
+                    whileFocus={{ 
+                      scale: 1.02,
+                      boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <div className="process-list-header">
+                    <label>运行中的进程</label>
+                    <motion.button
+                      className="refresh-button"
+                      onClick={loadRunningProcesses}
+                      disabled={loadingProcesses}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FontAwesomeIcon icon={faRefresh} spin={loadingProcesses} />
+                      刷新
+                    </motion.button>
+                  </div>
+                  <div className="process-list">
+                    {loadingProcesses ? (
+                      <motion.div 
+                        className="loading"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        加载中...
+                      </motion.div>
+                    ) : runningProcesses.length === 0 ? (
+                      <div className="no-processes">无法获取进程列表</div>
+                    ) : (
+                      runningProcesses.slice(0, 20).map((process, index) => (
+                        <motion.button
+                          key={process}
+                          className="process-item"
+                          onClick={() => handleSelectProcess(process)}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.02, duration: 0.3 }}
+                          whileHover={{ 
+                            scale: 1.02,
+                            backgroundColor: "rgba(212, 165, 116, 0.1)"
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          {process}
+                        </motion.button>
+                      ))
+                    )}
+                  </div>
+                </div>
+                <div className="form-group">
+                  <motion.label 
+                    className="checkbox-label"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={newApp.enabled}
+                      onChange={(e) => setNewApp(prev => ({ ...prev, enabled: e.target.checked }))}
+                    />
+                    <span>启用此黑名单规则</span>
+                  </motion.label>
+                </div>
+              </motion.div>
+              <motion.div 
+                className="blacklist-modal-footer"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
               >
-                取消
-              </button>
-              <button
-                className="add-button"
-                onClick={handleAddApp}
-                disabled={!newApp.name.trim() || !newApp.processName.trim()}
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                添加
-              </button>
-            </div>
-          </div>
-        </div>
+                <motion.button
+                  className="cancel-button"
+                  onClick={() => setShowAddDialog(false)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  取消
+                </motion.button>
+                <motion.button
+                  className="add-button"
+                  onClick={handleAddApp}
+                  disabled={!newApp.name.trim() || !newApp.processName.trim()}
+                  whileHover={{ 
+                    scale: (!newApp.name.trim() || !newApp.processName.trim()) ? 1 : 1.05,
+                    boxShadow: (!newApp.name.trim() || !newApp.processName.trim()) ? "none" : "0 8px 25px rgba(212, 165, 116, 0.3)"
+                  }}
+                  whileTap={{ scale: (!newApp.name.trim() || !newApp.processName.trim()) ? 1 : 0.95 }}
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                  添加
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
       )}
     </div>
   )
