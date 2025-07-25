@@ -2,10 +2,12 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { AppTracker } from './services/AppTracker'
 import { WorkModeManager } from './services/WorkModeManager'
+import { DataExportManager } from './services/DataExportManager'
 
 let mainWindow: BrowserWindow
 let appTracker: AppTracker
 let workModeManager: WorkModeManager
+let dataExportManager: DataExportManager
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -32,9 +34,12 @@ function createWindow() {
 
   // 初始化工作模式管理器
   workModeManager = new WorkModeManager()
-  
+
   // 设置 AppTracker 引用到 WorkModeManager
   workModeManager.setAppTracker(appTracker)
+
+  // 初始化数据导出管理器
+  dataExportManager = new DataExportManager(appTracker, workModeManager)
 }
 
 // IPC 处理程序
@@ -152,6 +157,45 @@ ipcMain.handle('get-work-mode-active', async () => {
     return appTracker.getWorkModeActive()
   }
   return false
+})
+
+// 数据导出相关IPC处理程序
+ipcMain.handle('set-feishu-config', async (event, config: any) => {
+  return dataExportManager.setFeishuConfig(config)
+})
+
+ipcMain.handle('get-export-config', async () => {
+  return dataExportManager.getConfig()
+})
+
+ipcMain.handle('test-feishu-connection', async () => {
+  return dataExportManager.testFeishuConnection()
+})
+
+ipcMain.handle('export-today-data', async () => {
+  return dataExportManager.exportTodayData()
+})
+
+ipcMain.handle('export-date-data', async (event, date: string) => {
+  return dataExportManager.exportDateData(date)
+})
+
+
+
+ipcMain.handle('enable-auto-export', async (event, intervalHours: number) => {
+  return dataExportManager.enableAutoExport(intervalHours)
+})
+
+ipcMain.handle('disable-auto-export', async () => {
+  return dataExportManager.disableAutoExport()
+})
+
+ipcMain.handle('get-export-status', async () => {
+  return dataExportManager.getExportStatus()
+})
+
+ipcMain.handle('export-app-usage-summary', async (event, date?: string) => {
+  return dataExportManager.exportAppUsageSummary(date)
 })
 
 app.whenReady().then(createWindow)

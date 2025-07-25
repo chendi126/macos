@@ -1,9 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-  faCog, 
-  faDesktop, 
-  faChartLine 
+import {
+  faCog,
+  faDesktop,
+  faChartLine,
+  faCloudUpload
 } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
 
@@ -11,6 +12,7 @@ const menuItems = [
   { path: '/work-mode', label: '工作模式设置', icon: faCog },
   { path: '/app-tracking', label: '应用追踪', icon: faDesktop },
   { path: '/time-analysis', label: '时间分析', icon: faChartLine },
+  { path: '/data-export', label: '数据导出', icon: faCloudUpload },
 ]
 
 export default function Sidebar() {

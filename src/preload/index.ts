@@ -53,7 +53,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getWorkModeActive: () => ipcRenderer.invoke('get-work-mode-active'),
   
   // Windows 资源管理器
-  openWindowsExplorer: (path?: string) => ipcRenderer.invoke('open-windows-explorer', path)
+  openWindowsExplorer: (path?: string) => ipcRenderer.invoke('open-windows-explorer', path),
+
+  // 数据导出相关API
+  setFeishuConfig: (config: any) => ipcRenderer.invoke('set-feishu-config', config),
+  getExportConfig: () => ipcRenderer.invoke('get-export-config'),
+  testFeishuConnection: () => ipcRenderer.invoke('test-feishu-connection'),
+  exportTodayData: () => ipcRenderer.invoke('export-today-data'),
+  exportDateData: (date: string) => ipcRenderer.invoke('export-date-data', date),
+
+  enableAutoExport: (intervalHours: number) => ipcRenderer.invoke('enable-auto-export', intervalHours),
+  disableAutoExport: () => ipcRenderer.invoke('disable-auto-export'),
+  getExportStatus: () => ipcRenderer.invoke('get-export-status'),
+  exportAppUsageSummary: (date?: string) => ipcRenderer.invoke('export-app-usage-summary', date)
 })
 
 console.log('Preload script loaded')
