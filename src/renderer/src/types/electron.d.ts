@@ -28,11 +28,30 @@ export interface TodayStats {
   date: string
 }
 
+export interface AutoStartApp {
+  id: string
+  name: string
+  path: string
+  arguments?: string
+  workingDirectory?: string
+  enabled: boolean
+}
+
+export interface BlacklistApp {
+  id: string
+  name: string
+  processName: string
+  enabled: boolean
+}
+
 export interface WorkMode {
   id: string
   name: string
   description: string
   autoCreateDesktop: boolean
+  autoStartApps: AutoStartApp[]
+  blacklistApps: BlacklistApp[]
+  enableBlacklist: boolean
   createdAt: number
   updatedAt: number
 }
@@ -59,6 +78,18 @@ declare global {
       startWorkMode: (id: string) => Promise<boolean>
       stopWorkMode: (id: string) => Promise<boolean>
       getRunningModeId: () => Promise<string | null>
+      
+      // 自启动应用相关API
+      selectExecutableFile: () => Promise<string | null>
+      addAutoStartApp: (modeId: string, app: Omit<AutoStartApp, 'id'>) => Promise<AutoStartApp | null>
+      updateAutoStartApp: (modeId: string, appId: string, updates: Partial<AutoStartApp>) => Promise<boolean>
+      removeAutoStartApp: (modeId: string, appId: string) => Promise<boolean>
+      
+      // 黑名单应用相关API
+      addBlacklistApp: (modeId: string, app: Omit<BlacklistApp, 'id'>) => Promise<BlacklistApp | null>
+      updateBlacklistApp: (modeId: string, appId: string, updates: Partial<BlacklistApp>) => Promise<boolean>
+      removeBlacklistApp: (modeId: string, appId: string) => Promise<boolean>
+      getRunningProcesses: () => Promise<string[]>
     }
   }
 }

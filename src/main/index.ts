@@ -97,6 +97,23 @@ ipcMain.handle('get-running-mode-id', async () => {
   return workModeManager.getCurrentRunningModeId()
 })
 
+// 自启动应用相关IPC处理程序
+ipcMain.handle('select-executable-file', async () => {
+  return workModeManager.selectExecutableFile()
+})
+
+ipcMain.handle('add-auto-start-app', async (event, modeId: string, app: any) => {
+  return workModeManager.addAutoStartApp(modeId, app)
+})
+
+ipcMain.handle('update-auto-start-app', async (event, modeId: string, appId: string, updates: any) => {
+  return workModeManager.updateAutoStartApp(modeId, appId, updates)
+})
+
+ipcMain.handle('remove-auto-start-app', async (event, modeId: string, appId: string) => {
+  return workModeManager.removeAutoStartApp(modeId, appId)
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

@@ -9,6 +9,7 @@ import {
   faPause
 } from '@fortawesome/free-solid-svg-icons'
 import { useWorkMode } from '../contexts/WorkModeContext'
+import AutoStartApps from '../components/AutoStartApps'
 import './WorkModeSettings.css'
 
 export default function WorkModeSettings() {
@@ -204,9 +205,13 @@ export default function WorkModeSettings() {
             {/* 自动启动应用 */}
             <div className="settings-card">
               <h3>自动启动应用</h3>
-              <div className="placeholder-text">
-                <p>应用管理功能开发中...</p>
-              </div>
+              <p className="feature-hint">
+                配置在启动此工作模式时需要自动启动的应用程序
+              </p>
+              <AutoStartApps 
+                modeId={selectedMode.id} 
+                apps={selectedMode.autoStartApps || []} 
+              />
             </div>
 
             {/* 自动创建新桌面 */}

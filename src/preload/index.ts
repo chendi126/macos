@@ -20,6 +20,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   stopWorkMode: (id: string) => ipcRenderer.invoke('stop-work-mode', id),
   getRunningModeId: () => ipcRenderer.invoke('get-running-mode-id'),
   
+  // 自启动应用相关API
+  selectExecutableFile: () => ipcRenderer.invoke('select-executable-file'),
+  addAutoStartApp: (modeId: string, app: any) => ipcRenderer.invoke('add-auto-start-app', modeId, app),
+  updateAutoStartApp: (modeId: string, appId: string, updates: any) => ipcRenderer.invoke('update-auto-start-app', modeId, appId, updates),
+  removeAutoStartApp: (modeId: string, appId: string) => ipcRenderer.invoke('remove-auto-start-app', modeId, appId),
+  
   // 监听应用使用更新
   onAppUsageUpdated: (callback: (data: any) => void) => {
     ipcRenderer.on('app-usage-updated', (event, data) => callback(data))

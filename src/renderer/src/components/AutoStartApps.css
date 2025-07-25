@@ -1,0 +1,399 @@
+.auto-start-apps {
+  width: 100%;
+}
+
+.apps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.apps-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2C2C2C;
+}
+
+.add-app-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #D4A574;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-app-button:hover {
+  background: #C19660;
+}
+
+.empty-apps {
+  text-align: center;
+  padding: 32px 16px;
+  color: #666666;
+}
+
+.empty-apps p {
+  margin: 8px 0;
+}
+
+.empty-apps .hint {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.apps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app-item {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.app-item.disabled {
+  opacity: 0.6;
+}
+
+.app-item:hover {
+  border-color: #D4A574;
+}
+
+.app-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.app-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2C2C2C;
+  margin-bottom: 4px;
+}
+
+.app-path {
+  font-size: 14px;
+  color: #666666;
+  font-family: 'Consolas', 'Monaco', monospace;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.app-args,
+.app-workdir {
+  font-size: 13px;
+  color: #999999;
+  margin-bottom: 2px;
+}
+
+.app-status {
+  margin-left: 16px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.enabled {
+  background: #E8F5E8;
+  color: #4CAF50;
+}
+
+.status-badge.disabled {
+  background: #FFF3E0;
+  color: #FF9800;
+}
+
+.app-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.app-actions button {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.toggle-button {
+  background: transparent;
+  color: #666666;
+}
+
+.toggle-button.enabled {
+  color: #4CAF50;
+}
+
+.toggle-button.disabled {
+  color: #999999;
+}
+
+.toggle-button:hover {
+  background: #F5F5F5;
+}
+
+.edit-button {
+  background: transparent;
+  color: #666666;
+}
+
+.edit-button:hover {
+  background: #F5F5F5;
+  color: #D4A574;
+}
+
+.delete-button {
+  background: transparent;
+  color: #666666;
+}
+
+.delete-button:hover {
+  background: #FFEBEE;
+  color: #F44336;
+}
+
+/* 编辑表单样式 */
+.app-edit-form {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2C2C2C;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #FFFFFF;
+  color: #2C2C2C;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #D4A574;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.save-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-button:hover {
+  background: #45A049;
+}
+
+.cancel-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #F5F5F5;
+  color: #2C2C2C;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background: #EEEEEE;
+}
+
+/* 文件选择输入组 */
+.file-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.file-input-group .form-input {
+  flex: 1;
+}
+
+.browse-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #F5F5F5;
+  color: #2C2C2C;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.browse-button:hover {
+  background: #EEEEEE;
+  border-color: #D4A574;
+}
+
+/* 复选框标签 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2C2C2C;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #E5E5E5;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2C2C2C;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background: #F5F5F5;
+  color: #2C2C2C;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #E5E5E5;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #D4A574;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover:not(:disabled) {
+  background: #C19660;
+}
+
+.add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

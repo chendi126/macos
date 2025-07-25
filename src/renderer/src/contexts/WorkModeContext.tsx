@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react'
-import { WorkMode } from '../types/electron'
+import { WorkMode, AutoStartApp, BlacklistApp } from '../types/electron'
 
 // 状态类型定义
 interface WorkModeState {
@@ -81,11 +81,18 @@ interface WorkModeContextType {
   createMode: (name: string, description?: string) => Promise<WorkMode | null>
   updateMode: (id: string, updates: Partial<WorkMode>) => Promise<WorkMode | null>
   deleteMode: (id: string) => Promise<boolean>
-  addAppToMode: (modeId: string, appPath: string, appName?: string) => Promise<any>
-  removeAppFromMode: (modeId: string, appId: string) => Promise<boolean>
   startMode: (id: string) => Promise<boolean>
   stopMode: (id: string) => Promise<boolean>
-  selectAppFile: () => Promise<string | null>
+  // 自启动应用管理
+  selectExecutableFile: () => Promise<string | null>
+  addAutoStartApp: (modeId: string, app: Omit<AutoStartApp, 'id'>) => Promise<AutoStartApp | null>
+  updateAutoStartApp: (modeId: string, appId: string, updates: Partial<AutoStartApp>) => Promise<boolean>
+  removeAutoStartApp: (modeId: string, appId: string) => Promise<boolean>
+  // 黑名单应用管理
+  addBlacklistApp: (modeId: string, app: Omit<BlacklistApp, 'id'>) => Promise<BlacklistApp | null>
+  updateBlacklistApp: (modeId: string, appId: string, updates: Partial<BlacklistApp>) => Promise<boolean>
+  removeBlacklistApp: (modeId: string, appId: string) => Promise<boolean>
+  getRunningProcesses: () => Promise<string[]>
   getSelectedMode: () => WorkMode | null
 }
 
@@ -162,16 +169,120 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // 添加应用到模式 (暂时返回null，因为简化版本没有应用管理)
-  const addAppToMode = async (modeId: string, appPath: string, appName?: string): Promise<any> => {
-    console.log('Add app to mode:', modeId, appPath, appName)
-    return null
+  // 选择可执行文件
+  const selectExecutableFile = async (): Promise<string | null> => {
+    try {
+      return await window.electronAPI.selectExecutableFile()
+    } catch (error) {
+      console.error('Error selecting executable file:', error)
+      return null
+    }
   }
 
-  // 从模式中移除应用 (暂时返回true，因为简化版本没有应用管理)
-  const removeAppFromMode = async (modeId: string, appId: string): Promise<boolean> => {
-    console.log('Remove app from mode:', modeId, appId)
-    return true
+  // 添加自启动应用
+  const addAutoStartApp = async (modeId: string, app: Omit<AutoStartApp, 'id'>): Promise<AutoStartApp | null> => {
+    try {
+      const newApp = await window.electronAPI.addAutoStartApp(modeId, app)
+      if (newApp) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return newApp
+    } catch (error) {
+      console.error('Error adding auto start app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '添加自启动应用失败' })
+      return null
+    }
+  }
+
+  // 更新自启动应用
+  const updateAutoStartApp = async (modeId: string, appId: string, updates: Partial<AutoStartApp>): Promise<boolean> => {
+    try {
+      const success = await window.electronAPI.updateAutoStartApp(modeId, appId, updates)
+      if (success) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return success
+    } catch (error) {
+      console.error('Error updating auto start app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '更新自启动应用失败' })
+      return false
+    }
+  }
+
+  // 移除自启动应用
+  const removeAutoStartApp = async (modeId: string, appId: string): Promise<boolean> => {
+    try {
+      const success = await window.electronAPI.removeAutoStartApp(modeId, appId)
+      if (success) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return success
+    } catch (error) {
+      console.error('Error removing auto start app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '移除自启动应用失败' })
+      return false
+    }
+  }
+
+  // 添加黑名单应用
+  const addBlacklistApp = async (modeId: string, app: Omit<BlacklistApp, 'id'>): Promise<BlacklistApp | null> => {
+    try {
+      const newApp = await window.electronAPI.addBlacklistApp(modeId, app)
+      if (newApp) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return newApp
+    } catch (error) {
+      console.error('Error adding blacklist app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '添加黑名单应用失败' })
+      return null
+    }
+  }
+
+  // 更新黑名单应用
+  const updateBlacklistApp = async (modeId: string, appId: string, updates: Partial<BlacklistApp>): Promise<boolean> => {
+    try {
+      const success = await window.electronAPI.updateBlacklistApp(modeId, appId, updates)
+      if (success) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return success
+    } catch (error) {
+      console.error('Error updating blacklist app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '更新黑名单应用失败' })
+      return false
+    }
+  }
+
+  // 移除黑名单应用
+  const removeBlacklistApp = async (modeId: string, appId: string): Promise<boolean> => {
+    try {
+      const success = await window.electronAPI.removeBlacklistApp(modeId, appId)
+      if (success) {
+        // 重新加载模式数据以更新UI
+        await loadModes()
+      }
+      return success
+    } catch (error) {
+      console.error('Error removing blacklist app:', error)
+      dispatch({ type: 'SET_ERROR', payload: '移除黑名单应用失败' })
+      return false
+    }
+  }
+
+  // 获取运行中的进程
+  const getRunningProcesses = async (): Promise<string[]> => {
+    try {
+      return await window.electronAPI.getRunningProcesses()
+    } catch (error) {
+      console.error('Error getting running processes:', error)
+      return []
+    }
   }
 
   // 启动模式
@@ -217,11 +328,7 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // 选择应用文件 (暂时返回null)
-  const selectAppFile = async (): Promise<string | null> => {
-    console.log('Select app file')
-    return null
-  }
+
 
   // 获取当前选中的模式
   const getSelectedMode = (): WorkMode | null => {
@@ -240,11 +347,12 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     createMode,
     updateMode,
     deleteMode,
-    addAppToMode,
-    removeAppFromMode,
     startMode,
     stopMode,
-    selectAppFile,
+    selectExecutableFile,
+    addAutoStartApp,
+    updateAutoStartApp,
+    removeAutoStartApp,
     getSelectedMode
   }
 
