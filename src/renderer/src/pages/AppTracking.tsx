@@ -39,72 +39,130 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 50, scale: 0.8, rotateX: 20 }}
+      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
       transition={{
-        duration: 0.6,
+        duration: 0.8,
         delay,
         type: "spring",
-        stiffness: 100
+        stiffness: 120,
+        damping: 20
       }}
       whileHover={{
-        y: -8,
-        scale: 1.02,
-        transition: { duration: 0.2 }
+        y: -12,
+        scale: 1.05,
+        rotateX: -5,
+        rotateY: 5,
+        transition: { duration: 0.3, type: "spring", stiffness: 300 }
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="stats-card"
       style={{
-        background: `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)`,
-        backdropFilter: 'blur(10px)',
-        borderRadius: '16px',
-        border: '1px solid rgba(240, 238, 237, 0.3)',
+        background: isHovered
+          ? `linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 100%)`
+          : `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)`,
+        backdropFilter: isHovered ? 'blur(20px)' : 'blur(15px)',
+        borderRadius: '20px',
+        border: isHovered
+          ? '2px solid rgba(212, 165, 116, 0.4)'
+          : '1px solid rgba(240, 238, 237, 0.3)',
         boxShadow: isHovered
-          ? '0 20px 40px rgba(212, 165, 116, 0.15), 0 0 30px rgba(212, 165, 116, 0.1)'
-          : '0 4px 20px rgba(0, 0, 0, 0.08)',
+          ? '0 25px 50px rgba(212, 165, 116, 0.2), 0 0 40px rgba(212, 165, 116, 0.15), inset 0 1px 0 rgba(255,255,255,0.8)'
+          : '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transformStyle: 'preserve-3d',
+        perspective: '1000px'
       }}
     >
-      {/* 背景光束效果 */}
+      {/* 多层背景效果 */}
       <motion.div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(45deg, transparent 30%, rgba(212, 165, 116, 0.1) 50%, transparent 70%)`,
-          transform: 'translateX(-100%)'
+          background: `conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(212, 165, 116, 0.1) 60deg, transparent 120deg)`,
+          transform: 'rotate(0deg)'
         }}
         animate={{
-          transform: isHovered ? 'translateX(100%)' : 'translateX(-100%)'
+          transform: isHovered ? 'rotate(360deg)' : 'rotate(0deg)'
         }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 2, ease: "easeInOut" }}
       />
 
-      {/* 粒子效果 */}
+      {/* 渐变光束 */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(45deg, transparent 20%, rgba(212, 165, 116, 0.15) 50%, transparent 80%)`,
+          transform: 'translateX(-120%)'
+        }}
+        animate={{
+          transform: isHovered ? 'translateX(120%)' : 'translateX(-120%)'
+        }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      />
+
+      {/* 边框光效 */}
+      <motion.div
+        className="absolute inset-0 rounded-[20px]"
+        style={{
+          background: 'linear-gradient(45deg, transparent, rgba(212, 165, 116, 0.3), transparent)',
+          padding: '1px',
+          opacity: 0
+        }}
+        animate={{
+          opacity: isHovered ? 1 : 0
+        }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="w-full h-full bg-transparent rounded-[19px]" />
+      </motion.div>
+
+      {/* 增强粒子效果 */}
       {isHovered && (
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-[#D4A574] rounded-full"
+              className="absolute rounded-full"
               style={{
+                width: `${Math.random() * 4 + 2}px`,
+                height: `${Math.random() * 4 + 2}px`,
+                background: `radial-gradient(circle, #D4A574, transparent)`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
               }}
               animate={{
                 opacity: [0, 1, 0],
-                scale: [0, 1, 0],
-                y: [0, -20, -40],
+                scale: [0, 1.5, 0],
+                y: [0, -30, -60],
+                x: [0, Math.random() * 20 - 10, Math.random() * 40 - 20],
               }}
               transition={{
-                duration: 1.5,
+                duration: 2 + Math.random(),
                 repeat: Infinity,
-                delay: i * 0.1,
+                delay: i * 0.15,
+                ease: "easeOut"
               }}
             />
           ))}
         </div>
       )}
+
+      {/* 脉冲环效果 */}
+      <motion.div
+        className="absolute inset-0 rounded-[20px] border-2 border-[#D4A574]"
+        style={{ opacity: 0 }}
+        animate={{
+          opacity: isHovered ? [0, 0.6, 0] : 0,
+          scale: isHovered ? [1, 1.1, 1.2] : 1
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: isHovered ? Infinity : 0,
+          ease: "easeOut"
+        }}
+      />
 
       <div className="stats-header relative z-10">
         <motion.p
@@ -214,36 +272,78 @@ function CurrentAppCard() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -50, scale: 0.95 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
+      initial={{ opacity: 0, x: -80, scale: 0.9, rotateY: -15 }}
+      animate={{ opacity: 1, x: 0, scale: 1, rotateY: 0 }}
       transition={{
-        duration: 0.7,
+        duration: 0.8,
         type: "spring",
-        stiffness: 100,
-        delay: 0.4
+        stiffness: 120,
+        damping: 25,
+        delay: 0.6
       }}
       whileHover={{
-        y: -6,
-        transition: { duration: 0.2 }
+        y: -10,
+        scale: 1.02,
+        rotateX: -2,
+        transition: { duration: 0.3, type: "spring", stiffness: 400 }
       }}
       className="current-app-card"
       style={{
-        background: `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%)`,
-        backdropFilter: 'blur(12px)',
-        borderRadius: '16px',
-        border: '1px solid rgba(240, 238, 237, 0.3)',
-        borderLeft: '4px solid #D4A574',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        background: `linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 100%)`,
+        backdropFilter: 'blur(20px)',
+        borderRadius: '20px',
+        border: '1px solid rgba(240, 238, 237, 0.4)',
+        borderLeft: '5px solid #D4A574',
+        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(212, 165, 116, 0.1)',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transformStyle: 'preserve-3d'
       }}
     >
-      {/* 背景装饰 */}
-      <div
-        className="absolute top-0 right-0 w-32 h-32 opacity-10"
+      {/* 多层背景装饰 */}
+      <motion.div
+        className="absolute top-0 right-0 w-40 h-40 opacity-15"
+        style={{
+          background: `conic-gradient(from 45deg, #D4A574 0%, transparent 50%, #D4A574 100%)`,
+          transform: 'translate(25%, -25%)'
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* 动态光晕 */}
+      <motion.div
+        className="absolute -top-10 -right-10 w-20 h-20 opacity-20"
         style={{
           background: `radial-gradient(circle, #D4A574 0%, transparent 70%)`,
-          transform: 'translate(30%, -30%)'
+          filter: 'blur(10px)'
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* 边框流光效果 */}
+      <motion.div
+        className="absolute inset-0 rounded-[20px]"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.4), transparent)',
+          transform: 'translateX(-100%)'
+        }}
+        animate={{
+          transform: ['translateX(-100%)', 'translateX(100%)']
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          repeatDelay: 2,
+          ease: "easeInOut"
         }}
       />
 
@@ -481,22 +581,76 @@ export default function AppTracking() {
   if (loading) {
     return (
       <div className="app-tracking">
+        <div className="mouse-follow-bg" />
         <div className="main-content">
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p className="loading-text">加载应用使用数据...</p>
-          </div>
+          <motion.div
+            className="loading-state"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            {/* 现代化加载动画 */}
+            <motion.div className="modern-loading-container">
+              <motion.div
+                className="modern-loading-ring"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              >
+                <div className="loading-ring-segment"></div>
+                <div className="loading-ring-segment"></div>
+                <div className="loading-ring-segment"></div>
+              </motion.div>
+
+              {/* 脉冲效果 */}
+              <motion.div
+                className="loading-pulse"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.8, 0.3]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+
+            <motion.p
+              className="loading-text"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              正在加载应用使用数据...
+            </motion.p>
+
+            {/* 加载进度点 */}
+            <motion.div className="loading-dots">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="loading-dot"
+                  animate={{
+                    y: [0, -10, 0],
+                    opacity: [0.4, 1, 0.4]
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     )
   }
   return (
-    <motion.div
-      className="app-tracking"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-    >
+    <div className="app-tracking">
       {/* 鼠标跟随背景 */}
       <div className="mouse-follow-bg" />
 
@@ -527,31 +681,11 @@ export default function AppTracking() {
           />
         ))}
 
-        {/* 光束扫描 - 减慢速度，降低透明度 */}
-        <motion.div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(212, 165, 116, 0.05) 50%, transparent 100%)',
-            width: '200px',
-          }}
-          animate={{
-            x: ['-200px', 'calc(100vw + 200px)'],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-        />
+
       </motion.div>
 
 
-      <motion.div
-        className="main-content"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
+      <div className="main-content">
         {/* 导出按钮 */}
         <div className="content-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -621,32 +755,41 @@ export default function AppTracking() {
         </div>
 
         {/* 统计卡片 */}
-        <div className="stats-grid">
+        <motion.div
+          className="stats-grid"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <StatsCard
             title="总使用时长"
             value={formatDuration(realTimeTotalTime)}
             icon={faClock}
             bgColor="#F5E8D3"
+            delay={0.1}
           />
           <StatsCard
             title="高效时长"
             value={stats ? formatDuration(stats.productiveTime) : '00:00:00'}
             icon={faChartLine}
             bgColor="#E5F0E0"
+            delay={0.2}
           />
           <StatsCard
             title="分心时长"
             value={stats ? formatDuration(stats.distractingTime) : '00:00:00'}
             icon={faExclamationTriangle}
             bgColor="#F7E5DE"
+            delay={0.3}
           />
           <StatsCard
             title="效率得分"
             value={stats ? `${stats.efficiencyScore}%` : '0%'}
             icon={faStar}
             bgColor="#F5E8D3"
+            delay={0.4}
           />
-        </div>
+        </motion.div>
 
         {/* 当前活动应用 */}
         <CurrentAppCard />
@@ -912,7 +1055,7 @@ export default function AppTracking() {
             </div>
           </div>
         </motion.div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }

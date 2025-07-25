@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  overflow-x: hidden; /* 确保隐藏横向滚动条 */
 }
 
 .app-tracking .main-content {
@@ -179,16 +180,95 @@
   letter-spacing: 0.5px;
 }
 
-/* 加载状态 */
+/* 现代化加载状态 */
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
+  height: 400px;
   text-align: center;
+  position: relative;
 }
 
+.modern-loading-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 32px;
+}
+
+.modern-loading-ring {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.loading-ring-segment {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 3px solid transparent;
+  border-radius: 50%;
+}
+
+.loading-ring-segment:nth-child(1) {
+  border-top: 3px solid #D4A574;
+  animation: ring-rotate 1.5s linear infinite;
+}
+
+.loading-ring-segment:nth-child(2) {
+  border-right: 3px solid rgba(212, 165, 116, 0.6);
+  animation: ring-rotate 1.5s linear infinite reverse;
+  animation-delay: -0.5s;
+}
+
+.loading-ring-segment:nth-child(3) {
+  border-bottom: 3px solid rgba(212, 165, 116, 0.3);
+  animation: ring-rotate 1.5s linear infinite;
+  animation-delay: -1s;
+}
+
+.loading-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #D4A574, rgba(212, 165, 116, 0.3));
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(212, 165, 116, 0.5);
+}
+
+@keyframes ring-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #2A2520;
+  margin: 0 0 24px 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #D4A574, #E6C79C);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
+}
+
+/* 旧的加载动画保留作为备用 */
 .loading-spinner {
   width: 32px;
   height: 32px;
@@ -202,12 +282,6 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-  font-size: 14px;
-  color: #8B8073;
-  margin: 0;
 }
 
 /* 使用图表卡片 */

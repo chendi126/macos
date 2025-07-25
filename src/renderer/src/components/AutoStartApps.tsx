@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPlus,
@@ -36,6 +38,20 @@ export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
     workingDirectory: '',
     enabled: true
   })
+
+  // 当弹窗显示时，隐藏横向滚动条
+  useEffect(() => {
+    if (showAddDialog) {
+      document.body.style.overflowX = 'hidden'
+    } else {
+      document.body.style.overflowX = ''
+    }
+
+    // 清理函数
+    return () => {
+      document.body.style.overflowX = ''
+    }
+  }, [showAddDialog])
 
   // 选择应用文件
   const handleSelectFile = async () => {
@@ -231,99 +247,165 @@ export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
         </div>
       )}
 
-      {/* 添加应用对话框 */}
-      {showAddDialog && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>添加自启动应用</h3>
-              <button
-                className="close-button"
-                onClick={() => setShowAddDialog(false)}
+      {/* 添加应用对话框 - 使用Portal渲染到body */}
+      {showAddDialog && createPortal(
+        <AnimatePresence>
+          <motion.div 
+            className="auto-start-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowAddDialog(false)}
+          >
+            <motion.div 
+              className="auto-start-modal"
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.div 
+                className="auto-start-modal-header"
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
               >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>应用程序路径</label>
-                <div className="file-input-group">
-                  <input
-                    type="text"
-                    value={newApp.path}
-                    onChange={(e) => setNewApp(prev => ({ ...prev, path: e.target.value }))}
-                    className="form-input"
-                    placeholder="选择应用程序文件"
-                    readOnly
-                  />
-                  <button
-                    className="browse-button"
-                    onClick={handleSelectFile}
-                  >
-                    <FontAwesomeIcon icon={faFolder} />
-                    浏览
-                  </button>
+                <h3>添加自启动应用</h3>
+                <motion.button
+                  className="auto-start-close-button"
+                  onClick={() => setShowAddDialog(false)}
+                  whileHover={{ 
+                    scale: 1.1,
+                    rotate: 90,
+                    backgroundColor: "rgba(240, 238, 237, 1)"
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </motion.button>
+              </motion.div>
+              <motion.div 
+                className="auto-start-modal-body"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+              >
+                <div className="form-group">
+                  <label>应用程序路径</label>
+                  <div className="file-input-group">
+                    <motion.input
+                      type="text"
+                      value={newApp.path}
+                      onChange={(e) => setNewApp(prev => ({ ...prev, path: e.target.value }))}
+                      className="form-input"
+                      placeholder="选择应用程序文件"
+                      readOnly
+                      whileFocus={{ 
+                        scale: 1.02,
+                        boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                      }}
+                    />
+                    <motion.button
+                      className="browse-button"
+                      onClick={handleSelectFile}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FontAwesomeIcon icon={faFolder} />
+                      浏览
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
-              <div className="form-group">
-                <label>应用名称</label>
-                <input
-                  type="text"
-                  value={newApp.name}
-                  onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
-                  className="form-input"
-                  placeholder="输入应用名称"
-                />
-              </div>
-              <div className="form-group">
-                <label>启动参数（可选）</label>
-                <input
-                  type="text"
-                  value={newApp.arguments}
-                  onChange={(e) => setNewApp(prev => ({ ...prev, arguments: e.target.value }))}
-                  className="form-input"
-                  placeholder="例如: --minimized"
-                />
-              </div>
-              <div className="form-group">
-                <label>工作目录（可选）</label>
-                <input
-                  type="text"
-                  value={newApp.workingDirectory}
-                  onChange={(e) => setNewApp(prev => ({ ...prev, workingDirectory: e.target.value }))}
-                  className="form-input"
-                  placeholder="例如: C:\\MyProject"
-                />
-              </div>
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={newApp.enabled}
-                    onChange={(e) => setNewApp(prev => ({ ...prev, enabled: e.target.checked }))}
+                <div className="form-group">
+                  <label>应用名称</label>
+                  <motion.input
+                    type="text"
+                    value={newApp.name}
+                    onChange={(e) => setNewApp(prev => ({ ...prev, name: e.target.value }))}
+                    className="form-input"
+                    placeholder="输入应用名称"
+                    whileFocus={{ 
+                      scale: 1.02,
+                      boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                    }}
                   />
-                  <span>启用此应用</span>
-                </label>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="cancel-button"
-                onClick={() => setShowAddDialog(false)}
+                </div>
+                <div className="form-group">
+                  <label>启动参数（可选）</label>
+                  <motion.input
+                    type="text"
+                    value={newApp.arguments}
+                    onChange={(e) => setNewApp(prev => ({ ...prev, arguments: e.target.value }))}
+                    className="form-input"
+                    placeholder="例如: --minimized"
+                    whileFocus={{ 
+                      scale: 1.02,
+                      boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>工作目录（可选）</label>
+                  <motion.input
+                    type="text"
+                    value={newApp.workingDirectory}
+                    onChange={(e) => setNewApp(prev => ({ ...prev, workingDirectory: e.target.value }))}
+                    className="form-input"
+                    placeholder="例如: C:\\MyProject"
+                    whileFocus={{ 
+                      scale: 1.02,
+                      boxShadow: "0 0 0 3px rgba(212, 165, 116, 0.2)"
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <motion.label 
+                    className="checkbox-label"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={newApp.enabled}
+                      onChange={(e) => setNewApp(prev => ({ ...prev, enabled: e.target.checked }))}
+                    />
+                    <span>启用此应用</span>
+                  </motion.label>
+                </div>
+              </motion.div>
+              <motion.div 
+                className="auto-start-modal-footer"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
               >
-                取消
-              </button>
-              <button
-                className="add-button"
-                onClick={handleAddApp}
-                disabled={!newApp.name.trim() || !newApp.path.trim()}
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                添加
-              </button>
-            </div>
-          </div>
-        </div>
+                <motion.button
+                  className="cancel-button"
+                  onClick={() => setShowAddDialog(false)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  取消
+                </motion.button>
+                <motion.button
+                  className="add-button"
+                  onClick={handleAddApp}
+                  disabled={!newApp.name.trim() || !newApp.path.trim()}
+                  whileHover={{ 
+                    scale: (!newApp.name.trim() || !newApp.path.trim()) ? 1 : 1.05,
+                    boxShadow: (!newApp.name.trim() || !newApp.path.trim()) ? "none" : "0 8px 25px rgba(212, 165, 116, 0.3)"
+                  }}
+                  whileTap={{ scale: (!newApp.name.trim() || !newApp.path.trim()) ? 1 : 0.95 }}
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                  添加
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
       )}
     </div>
   )

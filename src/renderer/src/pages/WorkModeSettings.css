@@ -3,6 +3,26 @@
   background-color: #FDFCFA;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  /* 隐藏横向滚动条 */
+}
+
+/* 鼠标跟随背景效果 */
+.mouse-follow-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(212, 165, 116, 0.15) 0%,
+      rgba(212, 165, 116, 0.05) 40%,
+      transparent 80%);
+  transition: background 0.3s ease;
 }
 
 .settings-header {
@@ -158,9 +178,11 @@
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
+
   100% {
     opacity: 1;
   }
@@ -209,6 +231,51 @@
   border-radius: 8px;
   padding: 24px;
   margin-bottom: 24px;
+}
+
+/* 增强卡片样式 */
+.enhanced-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border-radius: 16px !important;
+  border: 1px solid rgba(240, 238, 237, 0.3);
+  box-shadow: 0 8px 32px rgba(42, 37, 32, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.enhanced-card:hover {
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 15px 40px rgba(42, 37, 32, 0.15);
+  transform: translateY(-4px);
+}
+
+/* 卡片图标头部 */
+.card-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #D4A574, #E6C79C);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card-icon:hover {
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  transform: scale(1.1) rotate(360deg);
 }
 
 .settings-card h3 {
@@ -684,19 +751,104 @@ input:checked+.toggle-label:before {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* 加载状态样式 */
+/* 现代化加载状态 */
 .loading-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  color: #8B8073;
+  height: 400px;
+  text-align: center;
+  position: relative;
+}
+
+.modern-loading-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 32px;
+}
+
+.modern-loading-ring {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.loading-ring-segment {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 3px solid transparent;
+  border-radius: 50%;
+}
+
+.loading-ring-segment:nth-child(1) {
+  border-top: 3px solid #D4A574;
+  animation: ring-rotate 1.5s linear infinite;
+}
+
+.loading-ring-segment:nth-child(2) {
+  border-right: 3px solid rgba(212, 165, 116, 0.6);
+  animation: ring-rotate 1.5s linear infinite reverse;
+  animation-delay: -0.5s;
+}
+
+.loading-ring-segment:nth-child(3) {
+  border-bottom: 3px solid rgba(212, 165, 116, 0.3);
+  animation: ring-rotate 1.5s linear infinite;
+  animation-delay: -1s;
+}
+
+.loading-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #D4A574, rgba(212, 165, 116, 0.3));
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(212, 165, 116, 0.5);
+}
+
+@keyframes ring-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #2A2520;
+  margin: 0 0 24px 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #D4A574, #E6C79C);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
 }
 
 /* 空状态样式 */
@@ -761,6 +913,12 @@ input:checked+.toggle-label:before {
 .empty-state p {
   margin: 0 0 16px 0;
   font-size: 16px;
+}
+
+.empty-icon {
+  margin-bottom: 24px;
+  color: #D4A574;
+  opacity: 0.7;
 }
 
 / * 删除确认对话框样式 */ .delete-modal {
