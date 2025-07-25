@@ -114,6 +114,23 @@ ipcMain.handle('remove-auto-start-app', async (event, modeId: string, appId: str
   return workModeManager.removeAutoStartApp(modeId, appId)
 })
 
+// 黑名单应用相关IPC处理程序
+ipcMain.handle('add-blacklist-app', async (event, modeId: string, app: any) => {
+  return workModeManager.addBlacklistApp(modeId, app)
+})
+
+ipcMain.handle('update-blacklist-app', async (event, modeId: string, appId: string, updates: any) => {
+  return workModeManager.updateBlacklistApp(modeId, appId, updates)
+})
+
+ipcMain.handle('remove-blacklist-app', async (event, modeId: string, appId: string) => {
+  return workModeManager.removeBlacklistApp(modeId, appId)
+})
+
+ipcMain.handle('get-running-processes', async () => {
+  return workModeManager.getRunningProcesses()
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

@@ -146,8 +146,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   // 获取应用排行
-  const getTopApps = (apps: { [key: string]: AppUsageData }, limit = 5) => {
-    const totalTime = Object.values(apps).reduce((sum, app) => sum + app.duration, 0)
+  const getTopApps = (apps: { [key: string]: AppUsageData }, totalTime?: number, limit = 5) => {
+    // 如果没有提供totalTime，则计算它（向后兼容）
+    const calculatedTotalTime = totalTime ?? Object.values(apps).reduce((sum, app) => sum + app.duration, 0)
     
     return Object.values(apps)
       .sort((a, b) => b.duration - a.duration)
@@ -155,17 +156,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .map(app => ({
         ...app,
         formattedDuration: formatDuration(app.duration),
-        percentage: totalTime > 0 ? Math.round((app.duration / totalTime) * 100) : 0
+        percentage: calculatedTotalTime > 0 ? Math.round((app.duration / calculatedTotalTime) * 100) : 0
       }))
   }
 
-  // 获取使用数据
+  // 获取使用数据（仅用于AppTracking，始终获取今天的数据）
   const fetchUsageData = async (date?: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
-      const data = await window.electronAPI.getAppUsageData(date)
+      // AppTracking始终显示今天的数据，忽略date参数
+      const data = await window.electronAPI.getAppUsageData()
       dispatch({ type: 'SET_USAGE_DATA', payload: data })
-      dispatch({ type: 'SET_SELECTED_DATE', payload: date || null })
+      dispatch({ type: 'SET_SELECTED_DATE', payload: null })
     } catch (error) {
       console.error('Error fetching usage data:', error)
     } finally {

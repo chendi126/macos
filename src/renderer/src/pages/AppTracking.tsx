@@ -22,7 +22,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons'
 import { useAppContext } from '../contexts/AppContext'
 import { useRealTimeTimer } from '../hooks/useRealTimeTimer'
-import DateFilter from '../components/DateFilter'
+
 import { DayStats } from '../types/electron'
 import './AppTracking.css'
 
@@ -133,8 +133,6 @@ export default function AppTracking() {
 
   const { realTimeTotalTime, currentApp: realtimeCurrentApp, currentAppTotalDuration } = useRealTimeTimer()
 
-  const [selectedDate, setSelectedDate] = useState<string>()
-
   // 计算实时统计数据
   const getRealTimeStats = () => {
     if (!usageData) return null
@@ -157,7 +155,7 @@ export default function AppTracking() {
   }
 
   const stats = getRealTimeStats()
-  const topApps = usageData ? getTopApps(usageData.apps) : []
+  const topApps = usageData ? getTopApps(usageData.apps, realTimeTotalTime) : []
 
   // 生成时间轴数据
   const getTimelineData = (timeline: DayStats['timeline']) => {
@@ -204,12 +202,6 @@ export default function AppTracking() {
 
   const timelineData = usageData ? getTimelineData(usageData.timeline) : []
 
-  // 处理日期选择
-  const handleDateChange = (date?: string) => {
-    setSelectedDate(date)
-    fetchUsageData(date)
-  }
-
   if (loading) {
     return (
       <div className="app-tracking">
@@ -225,12 +217,9 @@ export default function AppTracking() {
   return (
     <div className="app-tracking">
       <div className="main-content">
-        {/* 时间范围选择和导出按钮 */}
+        {/* 导出按钮 */}
         <div className="content-header">
-          <DateFilter
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-          />
+          <h1>应用追踪</h1>
           <button className="export-button">
             <span>导出报告</span>
             <FontAwesomeIcon icon={faDownload} />

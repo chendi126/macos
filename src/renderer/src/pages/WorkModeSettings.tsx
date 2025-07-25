@@ -10,6 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { useWorkMode } from '../contexts/WorkModeContext'
 import AutoStartApps from '../components/AutoStartApps'
+import BlacklistApps from '../components/BlacklistApps'
 import './WorkModeSettings.css'
 
 export default function WorkModeSettings() {
@@ -27,6 +28,7 @@ export default function WorkModeSettings() {
   const [modeName, setModeName] = useState('')
   const [modeDescription, setModeDescription] = useState('')
   const [autoDesktop, setAutoDesktop] = useState(false)
+  const [enableBlacklist, setEnableBlacklist] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [showNewModeDialog, setShowNewModeDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -42,6 +44,7 @@ export default function WorkModeSettings() {
       setModeName(selectedMode.name)
       setModeDescription(selectedMode.description)
       setAutoDesktop(selectedMode.autoCreateDesktop)
+      setEnableBlacklist(selectedMode.enableBlacklist || false)
       setIsEditing(false)
     }
   }, [selectedMode])
@@ -53,12 +56,19 @@ export default function WorkModeSettings() {
     const success = await updateMode(selectedMode.id, {
       name: modeName,
       description: modeDescription,
-      autoCreateDesktop: autoDesktop
+      autoCreateDesktop: autoDesktop,
+      enableBlacklist: enableBlacklist
     })
 
     if (success) {
       setIsEditing(false)
     }
+  }
+
+  // 切换黑名单模式
+  const handleToggleBlacklist = (enabled: boolean) => {
+    setEnableBlacklist(enabled)
+    setIsEditing(true)
   }
 
   // 创建新模式
@@ -212,6 +222,32 @@ export default function WorkModeSettings() {
                 modeId={selectedMode.id} 
                 apps={selectedMode.autoStartApps || []} 
               />
+            </div>
+
+            {/* 应用黑名单 */}
+            <div className="settings-card">
+              <div className="card-header">
+                <h3>应用黑名单</h3>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    id="enable-blacklist"
+                    checked={enableBlacklist}
+                    onChange={(e) => handleToggleBlacklist(e.target.checked)}
+                  />
+                  <label htmlFor="enable-blacklist" className="toggle-label"></label>
+                </div>
+              </div>
+              <p className="feature-hint">
+                启用后，系统将自动关闭黑名单中的应用程序
+              </p>
+              
+              {enableBlacklist && (
+                <BlacklistApps 
+                  modeId={selectedMode.id} 
+                  apps={selectedMode.blacklistApps || []} 
+                />
+              )}
             </div>
 
             {/* 自动创建新桌面 */}

@@ -21,70 +21,11 @@
   margin-bottom: 24px;
 }
 
-.time-filters {
-  display: flex;
-  gap: 8px;
-}
-
-.filter-button {
-  padding: 8px 16px;
-  border: 1px solid #F0EEED;
-  background-color: white;
-  border-radius: 6px;
+.content-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
   color: #2A2520;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-button:hover {
-  background-color: #F9F7F4;
-}
-
-.filter-button.active {
-  background-color: #F5E8D3;
-  border-color: #D4A574;
-  color: #2A2520;
-}
-
-.filter-button.custom {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 自定义日期选择器 */
-.custom-date-filter {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.date-input {
-  padding: 8px 16px;
-  border: 1px solid #F0EEED;
-  background-color: white;
-  border-radius: 6px;
-  color: #2A2520;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.date-input:hover {
-  background-color: #F9F7F4;
-}
-
-.date-input:focus {
-  outline: 2px solid #D4A574;
-  border-color: #D4A574;
-}
-
-.calendar-icon {
-  position: absolute;
-  right: 12px;
-  color: #8B8073;
-  pointer-events: none;
 }
 
 .export-button {

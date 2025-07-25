@@ -26,6 +26,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateAutoStartApp: (modeId: string, appId: string, updates: any) => ipcRenderer.invoke('update-auto-start-app', modeId, appId, updates),
   removeAutoStartApp: (modeId: string, appId: string) => ipcRenderer.invoke('remove-auto-start-app', modeId, appId),
   
+  // 黑名单应用相关API
+  addBlacklistApp: (modeId: string, app: any) => ipcRenderer.invoke('add-blacklist-app', modeId, app),
+  updateBlacklistApp: (modeId: string, appId: string, updates: any) => ipcRenderer.invoke('update-blacklist-app', modeId, appId, updates),
+  removeBlacklistApp: (modeId: string, appId: string) => ipcRenderer.invoke('remove-blacklist-app', modeId, appId),
+  getRunningProcesses: () => ipcRenderer.invoke('get-running-processes'),
+  
   // 监听应用使用更新
   onAppUsageUpdated: (callback: (data: any) => void) => {
     ipcRenderer.on('app-usage-updated', (event, data) => callback(data))

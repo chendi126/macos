@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faChartLine,
@@ -11,6 +12,7 @@ import {
   faCheck,
   faClipboardList
 } from '@fortawesome/free-solid-svg-icons'
+import { DayStats, AppUsageData } from '../types/electron'
 import './TimeAnalysis.css'
 
 interface StatsCardProps {
@@ -149,19 +151,112 @@ function ChartPlaceholder({ type, data }: ChartPlaceholderProps) {
 }
 
 export default function TimeAnalysis() {
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [analysisData, setAnalysisData] = useState<DayStats | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  // 格式化时间显示为HH:MM:SS格式
+  const formatDuration = (milliseconds: number): string => {
+    const totalSeconds = Math.floor(milliseconds / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  // 计算效率统计
+  const getEfficiencyStats = (apps: { [key: string]: AppUsageData }) => {
+    const productiveCategories = ['开发工具', '工作效率', '设计与创意']
+    const distractingCategories = ['娱乐', '通讯与社交']
+    
+    let productiveTime = 0
+    let distractingTime = 0
+    let totalTime = 0
+
+    Object.values(apps).forEach(app => {
+      totalTime += app.duration
+      if (productiveCategories.includes(app.category || '')) {
+        productiveTime += app.duration
+      } else if (distractingCategories.includes(app.category || '')) {
+        distractingTime += app.duration
+      }
+    })
+
+    const neutralTime = totalTime - productiveTime - distractingTime
+    const efficiencyScore = totalTime > 0 ? Math.round((productiveTime / totalTime) * 100) : 0
+
+    return {
+      totalTime,
+      productiveTime,
+      distractingTime,
+      neutralTime,
+      efficiencyScore
+    }
+  }
+
+  // 获取应用排行
+  const getTopApps = (apps: { [key: string]: AppUsageData }, dayTotalTime: number, limit = 5) => {
+    return Object.values(apps)
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, limit)
+      .map(app => ({
+        ...app,
+        formattedDuration: formatDuration(app.duration),
+        percentage: dayTotalTime > 0 ? Math.round((app.duration / dayTotalTime) * 100) : 0
+      }))
+  }
+
+  // 获取历史分析数据（独立于AppContext）
+  const fetchAnalysisData = async (date?: string) => {
+    try {
+      setLoading(true)
+      const data = await window.electronAPI.getAppUsageData(date)
+      setAnalysisData(data)
+    } catch (error) {
+      console.error('Error fetching analysis data:', error)
+      setAnalysisData(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 处理日期选择
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = event.target.value
+    setSelectedDate(date)
+    fetchAnalysisData(date)
+  }
+
+  // 初始化时加载今天的数据
+  useEffect(() => {
+    fetchAnalysisData()
+  }, [])
+
+  // 使用AppTracker计算好的总时间，而不是重新计算
+  const totalTime = analysisData ? analysisData.totalTime : 0
+  
+  // 计算统计数据
+  const stats = analysisData ? getEfficiencyStats(analysisData.apps) : null
+  const topApps = analysisData ? getTopApps(analysisData.apps, totalTime) : []
+
   return (
     <div className="time-analysis">
       <div className="main-content">
-          {/* 时间范围选择和操作按钮 */}
+          {/* 日期选择和操作按钮 */}
           <div className="content-header">
-            <div className="time-filters">
-              <button className="filter-button active">日</button>
-              <button className="filter-button">周</button>
-              <button className="filter-button">月</button>
-              <button className="filter-button custom">
-                <span>自定义</span>
-                <FontAwesomeIcon icon={faCalendarDays} />
-              </button>
+            <div className="date-selector">
+              <label htmlFor="date-input">选择日期：</label>
+              <div className="date-input-wrapper">
+                <input
+                  id="date-input"
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  className="date-input"
+                />
+                <FontAwesomeIcon icon={faCalendarDays} className="calendar-icon" />
+              </div>
             </div>
             <div className="action-buttons">
               <button className="action-button">
@@ -176,36 +271,43 @@ export default function TimeAnalysis() {
           </div>
 
           {/* 统计卡片 */}
-          <div className="stats-grid">
-            <StatsCard
-              title="总使用时长"
-              value="8h 23m"
-              change="较前日 +15%"
-              icon={faClock}
-              bgColor="#F5E8D3"
-            />
-            <StatsCard
-              title="高效时长"
-              value="5h 47m"
-              change="较前日 +10%"
-              icon={faChartLine}
-              bgColor="#E5F0E0"
-            />
-            <StatsCard
-              title="分心时长"
-              value="2h 36m"
-              change="较前日 +25%"
-              icon={faExclamationTriangle}
-              bgColor="#F7E5DE"
-            />
-            <StatsCard
-              title="效率得分"
-              value="68%"
-              change="较前日 -5%"
-              icon={faStar}
-              bgColor="#F5E8D3"
-            />
-          </div>
+          {loading ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">加载分析数据...</p>
+            </div>
+          ) : (
+            <div className="stats-grid">
+              <StatsCard
+                title="总使用时长"
+                value={formatDuration(totalTime)}
+                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
+                icon={faClock}
+                bgColor="#F5E8D3"
+              />
+              <StatsCard
+                title="高效时长"
+                value={stats ? formatDuration(stats.productiveTime) : '00:00:00'}
+                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
+                icon={faChartLine}
+                bgColor="#E5F0E0"
+              />
+              <StatsCard
+                title="分心时长"
+                value={stats ? formatDuration(stats.distractingTime) : '00:00:00'}
+                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
+                icon={faExclamationTriangle}
+                bgColor="#F7E5DE"
+              />
+              <StatsCard
+                title="效率得分"
+                value={stats ? `${stats.efficiencyScore}%` : '0%'}
+                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
+                icon={faStar}
+                bgColor="#F5E8D3"
+              />
+            </div>
+          )}
 
           {/* 图表区域 */}
           <div className="charts-grid">
@@ -218,7 +320,28 @@ export default function TimeAnalysis() {
             {/* 热门应用排名 */}
             <div className="chart-card">
               <h2>热门应用排名</h2>
-              <ChartPlaceholder type="bar" data={[]} />
+              {topApps.length > 0 ? (
+                <div className="chart-container">
+                  <div className="bar-chart">
+                    {topApps.slice(0, 5).map((app, index) => {
+                      const maxHeight = 200
+                      const height = topApps.length > 0 ? (app.duration / topApps[0].duration) * maxHeight : 0
+                      return (
+                        <div key={app.name} className="bar-item">
+                          <div className="bar" style={{ height: `${height}px` }}>
+                            <span className="bar-value">{formatDuration(app.duration)}</span>
+                          </div>
+                          <span className="bar-label">{app.name}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="no-data">
+                  <p>暂无数据</p>
+                </div>
+              )}
             </div>
           </div>
 

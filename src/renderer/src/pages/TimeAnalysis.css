@@ -110,6 +110,89 @@
   margin-bottom: 24px;
 }
 
+/* 日期选择器样式 */
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-selector label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2C2C2C;
+}
+
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  padding: 8px 12px;
+  border: 1px solid #E5E5E5;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #FFFFFF;
+  color: #2C2C2C;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-width: 150px;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #D4A574;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  color: #666666;
+  pointer-events: none;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #666666;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #F5F5F5;
+  border-top: 3px solid #D4A574;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* 无数据状态 */
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666666;
+  font-size: 14px;
+}
+
 .time-filters {
   display: flex;
   gap: 8px;

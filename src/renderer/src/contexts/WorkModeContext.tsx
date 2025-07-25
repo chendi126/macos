@@ -353,6 +353,10 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     addAutoStartApp,
     updateAutoStartApp,
     removeAutoStartApp,
+    addBlacklistApp,
+    updateBlacklistApp,
+    removeBlacklistApp,
+    getRunningProcesses,
     getSelectedMode
   }
 
