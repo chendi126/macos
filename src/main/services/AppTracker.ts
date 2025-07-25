@@ -21,7 +21,9 @@ export interface DayStats {
     timestamp: number
     app: string
     title: string
+    isWorkMode?: boolean // 添加工作模式标记
   }>
+  workModeTime: number // 添加工作模式总时间
 }
 
 export class AppTracker {
@@ -30,14 +32,28 @@ export class AppTracker {
   private currentAppStartTime = 0
   private trackingInterval: NodeJS.Timeout | null = null
   private dataDir: string
-  private todayData: DayStats
+  private todayData!: DayStats
   private mainWindow: BrowserWindow | null
+  private isWorkModeActive = false // 添加工作模式状态
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow
     this.dataDir = path.join(app.getPath('userData'), 'app-usage')
     this.ensureDataDir()
     this.loadTodayData()
+  }
+
+  // 设置 WorkModeManager 引用，用于检查工作模式状态
+  public setWorkModeManager(workModeManager: any) {
+    // 检查当前是否有运行中的工作模式
+    const runningModeId = workModeManager.getCurrentRunningModeId()
+    if (runningModeId) {
+      this.isWorkModeActive = true
+      console.log('Restored work mode state: active')
+    } else {
+      this.isWorkModeActive = false
+      console.log('Restored work mode state: inactive')
+    }
   }
 
   private ensureDataDir() {
@@ -62,6 +78,20 @@ export class AppTracker {
       try {
         const data = fs.readFileSync(filePath, 'utf8')
         this.todayData = JSON.parse(data)
+        
+        // 数据迁移：确保有 workModeTime 字段
+        if (this.todayData.workModeTime === undefined) {
+          this.todayData.workModeTime = 0
+        }
+        
+        // 数据迁移：确保时间轴条目有 isWorkMode 字段
+        if (this.todayData.timeline) {
+          this.todayData.timeline.forEach(item => {
+            if (item.isWorkMode === undefined) {
+              item.isWorkMode = false
+            }
+          })
+        }
       } catch (error) {
         console.error('Error loading today data:', error)
         this.initTodayData()
@@ -76,7 +106,8 @@ export class AppTracker {
       date: this.getTodayDateString(),
       totalTime: 0,
       apps: {},
-      timeline: []
+      timeline: [],
+      workModeTime: 0 // 初始化工作模式时间
     }
   }
 
@@ -123,11 +154,17 @@ export class AppTracker {
 
     this.todayData.totalTime += duration
 
+    // 如果工作模式激活，增加工作模式时间
+    if (this.isWorkModeActive) {
+      this.todayData.workModeTime += duration
+    }
+
     // 添加到时间轴（实时更新）
     this.todayData.timeline.push({
       timestamp: Date.now(),
       app: appName,
-      title: title
+      title: title,
+      isWorkMode: this.isWorkModeActive
     })
 
     // 保持时间轴不超过1000条记录
@@ -147,7 +184,8 @@ export class AppTracker {
           durationDelta: duration
         },
         currentApp: appName,
-        totalTimeDelta: duration
+        totalTimeDelta: duration,
+        workModeTimeDelta: this.isWorkModeActive ? duration : 0
       })
     }
   }
@@ -317,8 +355,46 @@ export class AppTracker {
       
       // 更新总时间
       realTimeData.totalTime += currentAppDuration
+      
+      // 如果工作模式激活，也更新工作模式时间
+      if (this.isWorkModeActive) {
+        realTimeData.workModeTime += currentAppDuration
+      }
     }
     
     return realTimeData
+  }
+
+  // 设置工作模式状态
+  public setWorkModeActive(isActive: boolean) {
+    const wasActive = this.isWorkModeActive
+    this.isWorkModeActive = isActive
+    console.log(`Work mode ${isActive ? 'activated' : 'deactivated'}`)
+    console.log(`Current work mode time: ${this.todayData.workModeTime}ms`)
+    
+    // 如果从激活变为非激活，保存当前应用的时间
+    if (wasActive && !isActive && this.currentApp && this.currentAppStartTime > 0) {
+      const duration = Date.now() - this.currentAppStartTime
+      if (duration > 0) {
+        console.log(`Saving final work mode duration: ${duration}ms for app: ${this.currentApp}`)
+        this.updateAppUsage(this.currentApp, '', duration)
+        this.currentAppStartTime = Date.now() // 重置开始时间
+      }
+    }
+  }
+
+  // 获取工作模式状态
+  public getWorkModeActive(): boolean {
+    return this.isWorkModeActive
+  }
+
+  // 获取数据目录
+  public getDataDirectory(): string {
+    return this.dataDir
+  }
+
+  // 获取今日数据文件路径
+  public getTodayDataFilePath(): string {
+    return this.getDataFilePath(this.getTodayDateString())
   }
 }

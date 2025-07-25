@@ -22,7 +22,8 @@ type AppAction =
       appName: string; 
       appData: AppUsageData & { durationDelta: number }; 
       currentApp: string; 
-      totalTimeDelta: number 
+      totalTimeDelta: number;
+      workModeTimeDelta?: number;
     } }
 
 // 初始状态
@@ -71,7 +72,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
         usageData: {
           ...state.usageData,
           apps: updatedApps,
-          totalTime: state.usageData.totalTime + action.payload.totalTimeDelta
+          totalTime: state.usageData.totalTime + action.payload.totalTimeDelta,
+          workModeTime: (state.usageData.workModeTime || 0) + (action.payload.workModeTimeDelta || 0)
         }
       }
     default:
@@ -85,7 +87,7 @@ interface AppContextType {
   dispatch: React.Dispatch<AppAction>
   // 辅助函数
   formatDuration: (milliseconds: number) => string
-  getEfficiencyStats: (apps: { [key: string]: AppUsageData }) => {
+  getEfficiencyStats: (apps: { [key: string]: AppUsageData }, usageData?: any) => {
     totalTime: number
     productiveTime: number
     distractingTime: number
@@ -116,7 +118,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   // 计算效率统计
-  const getEfficiencyStats = (apps: { [key: string]: AppUsageData }) => {
+  const getEfficiencyStats = (apps: { [key: string]: AppUsageData }, usageData?: any) => {
     const productiveCategories = ['开发工具', '工作效率', '设计与创意']
     const distractingCategories = ['娱乐', '通讯与社交']
     
@@ -124,6 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let distractingTime = 0
     let totalTime = 0
 
+    // 计算各应用的时间分类
     Object.values(apps).forEach(app => {
       totalTime += app.duration
       if (productiveCategories.includes(app.category || '')) {
@@ -132,6 +135,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
         distractingTime += app.duration
       }
     })
+
+    // 如果有工作模式时间数据，采用简化逻辑：
+    // 工作模式时间直接替换为高效时间
+    if (usageData && usageData.workModeTime > 0) {
+      // 计算非工作模式时间
+      const nonWorkModeTime = totalTime - usageData.workModeTime
+      
+      // 重新分配时间：工作模式时间全部为高效时间
+      productiveTime = usageData.workModeTime
+      
+      // 非工作模式时间按原有逻辑分配
+      let nonWorkModeProductiveTime = 0
+      let nonWorkModeDistractingTime = 0
+      
+      Object.values(apps).forEach(app => {
+        // 这里简化处理，假设应用时间均匀分布在工作模式和非工作模式中
+        const appNonWorkModeTime = nonWorkModeTime > 0 ? 
+          app.duration * (nonWorkModeTime / totalTime) : 0
+          
+        if (productiveCategories.includes(app.category || '')) {
+          nonWorkModeProductiveTime += appNonWorkModeTime
+        } else if (distractingCategories.includes(app.category || '')) {
+          nonWorkModeDistractingTime += appNonWorkModeTime
+        }
+      })
+      
+      productiveTime += nonWorkModeProductiveTime
+      distractingTime = nonWorkModeDistractingTime
+    }
 
     const neutralTime = totalTime - productiveTime - distractingTime
     const efficiencyScore = totalTime > 0 ? Math.round((productiveTime / totalTime) * 100) : 0

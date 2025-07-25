@@ -15,7 +15,9 @@ export interface DayStats {
     timestamp: number
     app: string
     title: string
+    isWorkMode?: boolean
   }>
+  workModeTime: number
 }
 
 export interface TodayStats {
@@ -90,6 +92,13 @@ declare global {
       updateBlacklistApp: (modeId: string, appId: string, updates: Partial<BlacklistApp>) => Promise<boolean>
       removeBlacklistApp: (modeId: string, appId: string) => Promise<boolean>
       getRunningProcesses: () => Promise<string[]>
+      
+      // 工作模式状态管理API
+      setWorkModeActive: (isActive: boolean) => Promise<boolean>
+      getWorkModeActive: () => Promise<boolean>
+      
+      // Windows 资源管理器
+      openWindowsExplorer: (path?: string) => Promise<boolean>
     }
   }
 }

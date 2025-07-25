@@ -46,7 +46,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeAppUsageListener: () => {
     ipcRenderer.removeAllListeners('app-usage-updated')
     ipcRenderer.removeAllListeners('app-usage-incremental-update')
-  }
+  },
+  
+  // 工作模式状态管理API
+  setWorkModeActive: (isActive: boolean) => ipcRenderer.invoke('set-work-mode-active', isActive),
+  getWorkModeActive: () => ipcRenderer.invoke('get-work-mode-active'),
+  
+  // Windows 资源管理器
+  openWindowsExplorer: (path?: string) => ipcRenderer.invoke('open-windows-explorer', path)
 })
 
 console.log('Preload script loaded')

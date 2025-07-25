@@ -37,6 +37,7 @@ export class WorkModeManager {
   private modes: WorkMode[] = []
   private currentRunningModeId: string | null = null
   private blacklistMonitorInterval: NodeJS.Timeout | null = null
+  private appTracker: any = null // 添加 AppTracker 引用
 
   constructor() {
     this.dataDir = path.join(app.getPath('userData'), 'work-modes')
@@ -44,6 +45,11 @@ export class WorkModeManager {
     this.ensureDataDir()
     this.loadModes()
     this.migrateOldData()
+  }
+
+  // 设置 AppTracker 引用
+  public setAppTracker(appTracker: any) {
+    this.appTracker = appTracker
   }
 
   private ensureDataDir() {
@@ -184,6 +190,11 @@ export class WorkModeManager {
       // 设置当前运行的模式
       this.currentRunningModeId = id
       
+      // 通知 AppTracker 工作模式已激活
+      if (this.appTracker) {
+        this.appTracker.setWorkModeActive(true)
+      }
+      
       console.log(`Work mode "${mode.name}" started successfully`)
       return true
     } catch (error) {
@@ -199,6 +210,11 @@ export class WorkModeManager {
       
       // 停止黑名单监控
       this.stopBlacklistMonitoring()
+      
+      // 通知 AppTracker 工作模式已停用
+      if (this.appTracker) {
+        this.appTracker.setWorkModeActive(false)
+      }
       
       this.currentRunningModeId = null
       return true
@@ -311,6 +327,33 @@ Write-Host \"Virtual desktop creation command sent via keybd_event\"
   // 获取数据目录
   public getDataDirectory(): string {
     return this.dataDir
+  }
+
+  // 启动 Windows 资源管理器
+  public async openWindowsExplorer(path?: string): Promise<boolean> {
+    try {
+      const targetPath = path || 'C:\\'
+      const { spawn } = require('child_process')
+      
+      console.log(`Opening Windows Explorer at: ${targetPath}`)
+      
+      const child = spawn('explorer.exe', [targetPath], {
+        detached: true,
+        stdio: 'ignore'
+      })
+      
+      child.on('error', (error) => {
+        console.error('Error opening Windows Explorer:', error)
+        return false
+      })
+      
+      child.unref()
+      console.log('Windows Explorer opened successfully')
+      return true
+    } catch (error) {
+      console.error('Failed to open Windows Explorer:', error)
+      return false
+    }
   }
 
   // 选择可执行文件

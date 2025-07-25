@@ -1,19 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faClock,
   faChartLine,
   faExclamationTriangle,
   faStar,
-  faCalendarDays,
   faDownload,
   faCode,
   faDesktop,
   faFileText,
   faComment,
-  faEnvelope,
-  faBell,
-  faGamepad
+  faGamepad,
+  faPlay,
 } from '@fortawesome/free-solid-svg-icons'
 import {
   faChrome,
@@ -32,20 +31,130 @@ interface StatsCardProps {
   change?: string
   icon: any
   bgColor: string
+  delay?: number
 }
 
-function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
+function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCardProps) {
+  const [isHovered, setIsHovered] = useState(false)
+
   return (
-    <div className="stats-card">
-      <div className="stats-header">
-        <p className="stats-title">{title}</p>
-        <div className="stats-icon" style={{ backgroundColor: bgColor }}>
-          <FontAwesomeIcon icon={icon} />
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        duration: 0.6,
+        delay,
+        type: "spring",
+        stiffness: 100
+      }}
+      whileHover={{
+        y: -8,
+        scale: 1.02,
+        transition: { duration: 0.2 }
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="stats-card"
+      style={{
+        background: `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)`,
+        backdropFilter: 'blur(10px)',
+        borderRadius: '16px',
+        border: '1px solid rgba(240, 238, 237, 0.3)',
+        boxShadow: isHovered
+          ? '0 20px 40px rgba(212, 165, 116, 0.15), 0 0 30px rgba(212, 165, 116, 0.1)'
+          : '0 4px 20px rgba(0, 0, 0, 0.08)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      {/* 背景光束效果 */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(45deg, transparent 30%, rgba(212, 165, 116, 0.1) 50%, transparent 70%)`,
+          transform: 'translateX(-100%)'
+        }}
+        animate={{
+          transform: isHovered ? 'translateX(100%)' : 'translateX(-100%)'
+        }}
+        transition={{ duration: 0.6 }}
+      />
+
+      {/* 粒子效果 */}
+      {isHovered && (
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-[#D4A574] rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+                y: [0, -20, -40],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                delay: i * 0.1,
+              }}
+            />
+          ))}
         </div>
+      )}
+
+      <div className="stats-header relative z-10">
+        <motion.p
+          className="stats-title"
+          animate={{ color: isHovered ? '#D4A574' : '#8B8073' }}
+          transition={{ duration: 0.3 }}
+        >
+          {title}
+        </motion.p>
+        <motion.div
+          className="stats-icon"
+          style={{ backgroundColor: bgColor }}
+          animate={{
+            scale: isHovered ? 1.15 : 1,
+            rotate: isHovered ? 10 : 0,
+            boxShadow: isHovered
+              ? `0 0 20px ${bgColor}40, 0 0 40px ${bgColor}20`
+              : '0 2px 8px rgba(0,0,0,0.1)'
+          }}
+          transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+        >
+          <FontAwesomeIcon icon={icon} />
+        </motion.div>
       </div>
-      <p className="stats-value">{value}</p>
-      {change && <p className="stats-change">{change}</p>}
-    </div>
+      <motion.p
+        className="stats-value relative z-10"
+        animate={{
+          scale: isHovered ? 1.05 : 1,
+          color: isHovered ? '#D4A574' : '#2A2520'
+        }}
+        transition={{ duration: 0.3 }}
+        style={{
+          fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
+          fontWeight: 700,
+          fontSize: '28px',
+          letterSpacing: '-0.02em'
+        }}
+      >
+        {value}
+      </motion.p>
+      {change && (
+        <motion.p
+          className="stats-change relative z-10"
+          animate={{ opacity: isHovered ? 0.8 : 0.6 }}
+          transition={{ duration: 0.3 }}
+        >
+          {change}
+        </motion.p>
+      )}
+    </motion.div>
   )
 }
 
@@ -104,34 +213,168 @@ function CurrentAppCard() {
   const appData = usageData?.apps[currentApp]
 
   return (
-    <div className="current-app-card">
-      <div className="current-app-header">
-        <h3>当前活动应用</h3>
-        {isTracking && <div className="tracking-indicator"></div>}
+    <motion.div
+      initial={{ opacity: 0, x: -50, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{
+        duration: 0.7,
+        type: "spring",
+        stiffness: 100,
+        delay: 0.4
+      }}
+      whileHover={{
+        y: -6,
+        transition: { duration: 0.2 }
+      }}
+      className="current-app-card"
+      style={{
+        background: `linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%)`,
+        backdropFilter: 'blur(12px)',
+        borderRadius: '16px',
+        border: '1px solid rgba(240, 238, 237, 0.3)',
+        borderLeft: '4px solid #D4A574',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      {/* 背景装饰 */}
+      <div
+        className="absolute top-0 right-0 w-32 h-32 opacity-10"
+        style={{
+          background: `radial-gradient(circle, #D4A574 0%, transparent 70%)`,
+          transform: 'translate(30%, -30%)'
+        }}
+      />
+
+      <div className="current-app-header relative z-10">
+        <motion.h3
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#2A2520',
+            fontSize: '18px',
+            fontWeight: 600
+          }}
+        >
+          <motion.div
+            animate={{ rotate: [0, 5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
+          >
+            <FontAwesomeIcon icon={faPlay} style={{ color: '#D4A574' }} />
+          </motion.div>
+          当前活动应用
+        </motion.h3>
+        {isTracking && (
+          <div className="relative">
+            <motion.div
+              className="tracking-indicator"
+              animate={{
+                opacity: [0.6, 1, 0.6],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#4CAF50',
+                borderRadius: '50%',
+                boxShadow: '0 0 8px rgba(76, 175, 80, 0.4)'
+              }}
+            />
+          </div>
+        )}
       </div>
-      <div className="current-app-info">
-        <div className="app-icon" style={{ backgroundColor: getAppColor(currentApp, appData?.category) }}>
+      <motion.div
+        className="current-app-info relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+      >
+        <motion.div
+          className="app-icon"
+          style={{ backgroundColor: getAppColor(currentApp, appData?.category) }}
+          whileHover={{
+            scale: 1.1,
+            rotate: [0, -5, 5, 0],
+            boxShadow: `0 0 20px ${getAppColor(currentApp, appData?.category)}40`
+          }}
+          transition={{ duration: 0.3 }}
+        >
           <FontAwesomeIcon icon={getAppIcon(currentApp, appData?.category)} />
-        </div>
+        </motion.div>
         <div className="app-details">
-          <span className="app-name">{currentApp}</span>
-          <span className="total-time">{formatDuration(currentAppTotalDuration)}</span>
+          <motion.span
+            className="app-name"
+            whileHover={{ color: '#D4A574' }}
+            transition={{ duration: 0.2 }}
+          >
+            {currentApp}
+          </motion.span>
+          <span
+            className="total-time"
+            style={{
+              fontFamily: '"SF Mono", "Monaco", monospace',
+              fontWeight: 700,
+              fontSize: '24px',
+              letterSpacing: '1px'
+            }}
+          >
+            {formatDuration(currentAppTotalDuration)}
+          </span>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
 export default function AppTracking() {
   const {
-    state: { usageData, currentApp, loading },
+    state: { usageData, loading },
     formatDuration,
     getEfficiencyStats,
-    getTopApps,
-    fetchUsageData
+    getTopApps
   } = useAppContext()
 
   const { realTimeTotalTime, currentApp: realtimeCurrentApp, currentAppTotalDuration } = useRealTimeTimer()
+  const [isWorkModeActive, setIsWorkModeActive] = useState(false)
+
+  // 鼠标跟随背景效果
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 100
+      const y = (e.clientY / window.innerHeight) * 100
+      document.documentElement.style.setProperty('--mouse-x', `${x}%`)
+      document.documentElement.style.setProperty('--mouse-y', `${y}%`)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    return () => document.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  // 检查工作模式状态
+  useEffect(() => {
+    const checkWorkModeStatus = async () => {
+      try {
+        const isActive = await (window as any).electronAPI.getWorkModeActive()
+        setIsWorkModeActive(isActive)
+      } catch (error) {
+        console.error('Error checking work mode status:', error)
+      }
+    }
+
+    checkWorkModeStatus()
+    // 每5秒检查一次状态
+    const interval = setInterval(checkWorkModeStatus, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   // 计算实时统计数据
   const getRealTimeStats = () => {
@@ -151,7 +394,40 @@ export default function AppTracking() {
       }
     }
 
-    return getEfficiencyStats(realTimeApps)
+    // 计算实时总时间
+    const calculatedTotalTime = usageData.totalTime + (realtimeCurrentApp && currentAppTotalDuration > 0 ?
+      currentAppTotalDuration - (usageData.apps[realtimeCurrentApp]?.duration || 0) : 0)
+
+    // 计算实时工作模式时间
+    let realTimeWorkModeTime = usageData.workModeTime || 0
+
+    // 如果工作模式当前激活，并且有当前应用时间，需要加上增量
+    if (isWorkModeActive && realtimeCurrentApp && currentAppTotalDuration > 0) {
+      const savedAppDuration = usageData.apps[realtimeCurrentApp]?.duration || 0
+      const currentAppIncrement = currentAppTotalDuration - savedAppDuration
+      realTimeWorkModeTime += currentAppIncrement
+    }
+
+    // 创建实时的使用数据，包含工作模式时间
+    const realTimeUsageData = {
+      ...usageData,
+      apps: realTimeApps,
+      totalTime: calculatedTotalTime,
+      workModeTime: realTimeWorkModeTime
+    }
+
+    // 添加调试日志
+    console.log('Real-time stats calculation:', {
+      isWorkModeActive,
+      savedWorkModeTime: usageData.workModeTime,
+      realTimeWorkModeTime,
+      savedTotalTime: usageData.totalTime,
+      calculatedTotalTime,
+      currentApp: realtimeCurrentApp,
+      currentAppDuration: currentAppTotalDuration
+    })
+
+    return getEfficiencyStats(realTimeApps, realTimeUsageData)
   }
 
   const stats = getRealTimeStats()
@@ -215,15 +491,133 @@ export default function AppTracking() {
     )
   }
   return (
-    <div className="app-tracking">
-      <div className="main-content">
+    <motion.div
+      className="app-tracking"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* 鼠标跟随背景 */}
+      <div className="mouse-follow-bg" />
+
+      {/* 动画背景 */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none"
+        style={{ zIndex: -1 }}
+      >
+        {/* 浮动粒子 - 减少数量和动画强度 */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-[#D4A574] rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+
+        {/* 光束扫描 - 减慢速度，降低透明度 */}
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(212, 165, 116, 0.05) 50%, transparent 100%)',
+            width: '200px',
+          }}
+          animate={{
+            x: ['-200px', 'calc(100vw + 200px)'],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      </motion.div>
+
+
+      <motion.div
+        className="main-content"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
         {/* 导出按钮 */}
         <div className="content-header">
-          <h1>应用追踪</h1>
-          <button className="export-button">
-            <span>导出报告</span>
-            <FontAwesomeIcon icon={faDownload} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <h1>应用追踪</h1>
+            {isWorkModeActive && (
+              <motion.div
+                className="flex items-center gap-2 px-3 py-1 rounded-full"
+                style={{
+                  background: 'linear-gradient(45deg, #10B981, #06B6D4)',
+                  color: 'white',
+                  fontSize: '12px',
+                  fontWeight: 600
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 0 0 0 rgba(16, 185, 129, 0.4)',
+                    '0 0 0 8px rgba(16, 185, 129, 0)',
+                    '0 0 0 0 rgba(16, 185, 129, 0)'
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <motion.div
+                  className="w-2 h-2 bg-white rounded-full"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.8, 1, 0.8]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                工作模式已激活
+              </motion.div>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              className="export-button"
+              onClick={async () => {
+                try {
+                  const result = await (window as any).electronAPI.openWindowsExplorer()
+                  if (result) {
+                    console.log('Windows 资源管理器启动成功')
+                  } else {
+                    console.error('Windows 资源管理器启动失败')
+                  }
+                } catch (error) {
+                  console.error('启动 Windows 资源管理器时出错:', error)
+                }
+              }}
+            >
+              <span>打开资源管理器</span>
+              <FontAwesomeIcon icon={faDesktop} />
+            </button>
+            <button className="export-button">
+              <span>导出报告</span>
+              <FontAwesomeIcon icon={faDownload} />
+            </button>
+          </div>
         </div>
 
         {/* 统计卡片 */}
@@ -257,55 +651,160 @@ export default function AppTracking() {
         {/* 当前活动应用 */}
         <CurrentAppCard />
 
-        {/* 应用使用统计 */}
-        <div className="usage-chart-card">
-          <h2>应用使用统计</h2>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              {topApps.slice(0, 5).map((app, index) => {
-                const maxHeight = 200
-                const height = topApps.length > 0 ? (app.duration / topApps[0].duration) * maxHeight : 0
-                return (
-                  <div key={index} className="chart-bar" style={{ height: `${height}px` }}>
-                    <div className="bar" style={{ backgroundColor: getAppColor(app.name, app.category) }}></div>
-                    <span className="bar-value">{formatDuration(app.duration)}</span>
-                    <span className="bar-label">{app.name}</span>
-                  </div>
-                )
-              })}
-            </div>
+        {/* 现代化应用使用统计 */}
+        <motion.div
+          className="modern-chart-container"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
+          <motion.h2
+            style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#2A2520',
+              margin: '0 0 32px 0',
+              textAlign: 'center'
+            }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            应用使用统计
+          </motion.h2>
+
+          <div className="modern-chart-bars">
+            {topApps.slice(0, 5).map((app, index) => {
+              const maxHeight = 240
+              const height = topApps.length > 0 ? (app.duration / topApps[0].duration) * maxHeight : 0
+              const appColor = getAppColor(app.name, app.category)
+
+              return (
+                <motion.div
+                  key={index}
+                  className="modern-chart-bar"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.15,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                >
+                  <motion.div
+                    className="modern-bar"
+                    style={{
+                      '--bar-color': appColor,
+                      '--bar-color-dark': `${appColor}DD`,
+                      transformOrigin: 'bottom'
+                    } as any}
+                    initial={{
+                      height: 0,
+                      scaleY: 0
+                    }}
+                    animate={{
+                      height: `${height}px`,
+                      scaleY: 1
+                    }}
+                    transition={{
+                      height: {
+                        duration: 1.2,
+                        delay: index * 0.15 + 0.3,
+                        ease: [0.23, 1, 0.32, 1]
+                      },
+                      scaleY: {
+                        duration: 1.2,
+                        delay: index * 0.15 + 0.3,
+                        ease: [0.23, 1, 0.32, 1]
+                      }
+                    }}
+                  >
+                    <motion.div
+                      className="modern-bar-value"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: index * 0.15 + 1.2,
+                        duration: 0.4,
+                        ease: "easeOut"
+                      }}
+                    >
+                      {formatDuration(app.duration)}
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.div
+                    className="modern-bar-label"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: index * 0.15 + 0.8,
+                      duration: 0.4,
+                      ease: "easeOut"
+                    }}
+                  >
+                    {app.name}
+                  </motion.div>
+                </motion.div>
+              )
+            })}
           </div>
 
-          {/* 应用列表 */}
-          <div className="app-list">
-            <div className="list-header">
-              <div className="col-app">应用名称</div>
-              <div className="col-time">使用时长</div>
-              <div className="col-launches">启动次数</div>
-              <div className="col-category">分类</div>
+          {/* 现代化应用列表 */}
+          <div className="modern-app-list">
+            <div className="modern-list-header">
+              <div>应用名称</div>
+              <div>使用时长</div>
+              <div>启动次数</div>
+              <div>分类</div>
             </div>
             {topApps.map((app, index) => (
-              <div key={index} className={`app-row ${index === 0 ? 'selected' : ''}`}>
-                <div className="col-app">
-                  <div className="app-info">
-                    <div className="app-icon" style={{ backgroundColor: getAppColor(app.name, app.category) }}>
-                      <FontAwesomeIcon icon={getAppIcon(app.name, app.category)} />
-                    </div>
-                    <span>{app.name}</span>
-                  </div>
+              <motion.div
+                key={index}
+                className="modern-app-row"
+                style={{
+                  '--app-color': getAppColor(app.name, app.category)
+                } as any}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.05 + 1.5,
+                  type: "spring",
+                  stiffness: 80
+                }}
+              >
+                <div className="modern-app-info">
+                  <motion.div
+                    className="modern-app-icon"
+                    style={{ backgroundColor: getAppColor(app.name, app.category) }}
+                    whileHover={{
+                      scale: 1.1,
+                      rotate: 5,
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <FontAwesomeIcon icon={getAppIcon(app.name, app.category)} />
+                  </motion.div>
+                  <div className="modern-app-name">{app.name}</div>
                 </div>
-                <div className="col-time">{formatDuration(app.duration)}</div>
-                <div className="col-launches">{app.launches}</div>
-                <div className="col-category">
-                  <span className="category-tag">{app.category || '其他'}</span>
+                <div className="modern-col-time">{formatDuration(app.duration)}</div>
+                <div className="modern-col-launches">{app.launches}</div>
+                <div>
+                  <span className="modern-category-tag">{app.category || '其他'}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* 活动时间轴 */}
-        <div className="timeline-card">
+        <motion.div
+          className="timeline-card glass-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
           <h2>活动时间轴</h2>
           <div className="timeline-header">
             <div className="time-labels">
@@ -331,14 +830,38 @@ export default function AppTracking() {
               const appData = usageData?.apps[item.app]
               const color = getAppColor(item.app, appData?.category)
               return (
-                <div key={index} className="timeline-row">
-                  <div className="timeline-app-icon" style={{ backgroundColor: color }}>
+                <motion.div
+                  key={index}
+                  className="timeline-row"
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.1,
+                    type: "spring",
+                    stiffness: 60
+                  }}
+                  whileHover={{
+                    scale: 1.02,
+                    backgroundColor: 'rgba(212, 165, 116, 0.05)',
+                    transition: { duration: 0.2 }
+                  }}
+                >
+                  <motion.div
+                    className="timeline-app-icon"
+                    style={{ backgroundColor: color }}
+                    whileHover={{
+                      scale: 1.1,
+                      rotate: 360,
+                      transition: { duration: 0.5 }
+                    }}
+                  >
                     <FontAwesomeIcon icon={getAppIcon(item.app, appData?.category)} />
-                  </div>
+                  </motion.div>
                   <span className="timeline-app-name">{item.app}</span>
                   <div className="timeline-segments">
                     {item.segments.map((segment, segIndex) => (
-                      <div
+                      <motion.div
                         key={segIndex}
                         className="timeline-segment"
                         style={{
@@ -346,10 +869,22 @@ export default function AppTracking() {
                           width: `${segment.width}%`,
                           backgroundColor: color
                         }}
-                      ></div>
+                        initial={{ scaleX: 0, opacity: 0 }}
+                        animate={{ scaleX: 1, opacity: 1 }}
+                        transition={{
+                          duration: 0.6,
+                          delay: index * 0.1 + segIndex * 0.1,
+                          ease: "easeOut"
+                        }}
+                        whileHover={{
+                          scaleY: 1.2,
+                          boxShadow: `0 4px 12px ${color}40`,
+                          transition: { duration: 0.2 }
+                        }}
+                      ></motion.div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
@@ -376,8 +911,8 @@ export default function AppTracking() {
               <span>工作效率</span>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }

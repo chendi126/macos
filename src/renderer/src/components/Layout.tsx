@@ -12,11 +12,11 @@ export default function Layout() {
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/work-mode':
-        return 'Focus Manager'
+        return 'Work!Work!Work!'
       case '/app-tracking':
-        return 'Focus Manager'
+        return 'I am looking at you!'
       case '/time-analysis':
-        return 'Focus Manager'
+        return 'Time is precious.'
       default:
         return 'Focus Manager'
     }

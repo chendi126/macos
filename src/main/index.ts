@@ -32,6 +32,9 @@ function createWindow() {
 
   // 初始化工作模式管理器
   workModeManager = new WorkModeManager()
+  
+  // 设置 AppTracker 引用到 WorkModeManager
+  workModeManager.setAppTracker(appTracker)
 }
 
 // IPC 处理程序
@@ -129,6 +132,26 @@ ipcMain.handle('remove-blacklist-app', async (event, modeId: string, appId: stri
 
 ipcMain.handle('get-running-processes', async () => {
   return workModeManager.getRunningProcesses()
+})
+
+ipcMain.handle('open-windows-explorer', async (event, path?: string) => {
+  return workModeManager.openWindowsExplorer(path)
+})
+
+// 工作模式状态管理
+ipcMain.handle('set-work-mode-active', async (event, isActive: boolean) => {
+  if (appTracker) {
+    appTracker.setWorkModeActive(isActive)
+    return true
+  }
+  return false
+})
+
+ipcMain.handle('get-work-mode-active', async () => {
+  if (appTracker) {
+    return appTracker.getWorkModeActive()
+  }
+  return false
 })
 
 app.whenReady().then(createWindow)
