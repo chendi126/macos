@@ -1,29 +1,25 @@
 import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-  faPlus, 
+import {
+  faPlus,
   faTrash,
   faSave,
   faTimes,
   faPlay,
-  faStop,
-  faDesktop
+  faPause
 } from '@fortawesome/free-solid-svg-icons'
 import { useWorkMode } from '../contexts/WorkModeContext'
 import './WorkModeSettings.css'
 
 export default function WorkModeSettings() {
   const {
-    state: { modes, selectedModeId, loading, error },
+    state: { modes, selectedModeId, runningModeId, loading, error },
     dispatch,
     createMode,
     updateMode,
     deleteMode,
-    addAppToMode,
-    removeAppFromMode,
     startMode,
     stopMode,
-    selectAppFile,
     getSelectedMode
   } = useWorkMode()
 
@@ -32,6 +28,8 @@ export default function WorkModeSettings() {
   const [autoDesktop, setAutoDesktop] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [showNewModeDialog, setShowNewModeDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isToggling, setIsToggling] = useState(false)
   const [newModeName, setNewModeName] = useState('')
   const [newModeDescription, setNewModeDescription] = useState('')
 
@@ -75,40 +73,32 @@ export default function WorkModeSettings() {
     }
   }
 
-  // 删除模式
-  const handleDeleteMode = async () => {
-    if (!selectedMode) return
-    
-    if (confirm(`确定要删除模式"${selectedMode.name}"吗？`)) {
-      await deleteMode(selectedMode.id)
-    }
-  }
-
-  // 添加应用
-  const handleAddApp = async () => {
-    if (!selectedMode) return
-
-    const appPath = await selectAppFile()
-    if (appPath) {
-      await addAppToMode(selectedMode.id, appPath)
-    }
-  }
-
-  // 移除应用
-  const handleRemoveApp = async (appId: string) => {
-    if (!selectedMode) return
-    await removeAppFromMode(selectedMode.id, appId)
-  }
-
-  // 启动/停止模式
+  // 切换模式（启动/停止）
   const handleToggleMode = async () => {
     if (!selectedMode) return
 
-    if (selectedMode.isActive) {
-      await stopMode(selectedMode.id)
-    } else {
-      await startMode(selectedMode.id)
+    setIsToggling(true)
+    try {
+      const isCurrentlyRunning = runningModeId === selectedMode.id
+
+      if (isCurrentlyRunning) {
+        // 停止当前模式
+        await stopMode(selectedMode.id)
+      } else {
+        // 启动新模式（会自动停止其他运行的模式）
+        await startMode(selectedMode.id)
+      }
+    } finally {
+      setIsToggling(false)
     }
+  }
+
+  // 删除模式
+  const handleDeleteMode = async () => {
+    if (!selectedMode) return
+
+    await deleteMode(selectedMode.id)
+    setShowDeleteDialog(false)
   }
 
   if (loading) {
@@ -127,12 +117,18 @@ export default function WorkModeSettings() {
         <h1>工作模式设置</h1>
         {selectedMode && (
           <div className="mode-actions">
-            <button 
-              className={`mode-toggle-btn ${selectedMode.isActive ? 'active' : ''}`}
+            <button
+              className={`mode-toggle-btn ${runningModeId === selectedMode.id ? 'active' : ''}`}
               onClick={handleToggleMode}
+              disabled={isToggling}
             >
-              <FontAwesomeIcon icon={selectedMode.isActive ? faStop : faPlay} />
-              <span>{selectedMode.isActive ? '停止模式' : '启动模式'}</span>
+              <FontAwesomeIcon icon={runningModeId === selectedMode.id ? faPause : faPlay} />
+              <span>
+                {isToggling
+                  ? (runningModeId === selectedMode.id ? '停止中...' : '启动中...')
+                  : (runningModeId === selectedMode.id ? '停止模式' : '启动模式')
+                }
+              </span>
             </button>
           </div>
         )}
@@ -144,24 +140,28 @@ export default function WorkModeSettings() {
         </div>
       )}
 
+
+
       <div className="settings-content">
         {/* 左侧模式列表 */}
         <div className="mode-sidebar">
           <h2>已创建模式</h2>
           <ul className="mode-list">
-            {modes.map((mode) => (
+            {modes && modes.map((mode) => (
               <li key={mode.id} className="mode-item">
                 <button
-                  className={`mode-button ${selectedModeId === mode.id ? 'active' : ''} ${mode.isActive ? 'running' : ''}`}
+                  className={`mode-button ${selectedModeId === mode.id ? 'active' : ''} ${runningModeId === mode.id ? 'running' : ''}`}
                   onClick={() => dispatch({ type: 'SET_SELECTED_MODE', payload: mode.id })}
                 >
                   <span className="mode-name">{mode.name}</span>
-                  {mode.isActive && <span className="running-indicator">运行中</span>}
+                  {runningModeId === mode.id && (
+                    <span className="running-indicator">运行中</span>
+                  )}
                 </button>
               </li>
             ))}
           </ul>
-          <button 
+          <button
             className="new-mode-button"
             onClick={() => setShowNewModeDialog(true)}
           >
@@ -204,32 +204,9 @@ export default function WorkModeSettings() {
             {/* 自动启动应用 */}
             <div className="settings-card">
               <h3>自动启动应用</h3>
-              <div className="app-tags">
-                {selectedMode.apps.map((app) => (
-                  <div key={app.id} className="app-tag">
-                    <div className="app-icon">
-                      <FontAwesomeIcon icon={faDesktop} />
-                    </div>
-                    <div className="app-info">
-                      <span className="app-name">{app.name}</span>
-                      <span className="app-path">{app.path}</span>
-                    </div>
-                    <button 
-                      className="remove-button"
-                      onClick={() => handleRemoveApp(app.id)}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                ))}
+              <div className="placeholder-text">
+                <p>应用管理功能开发中...</p>
               </div>
-              <button 
-                className="add-app-button"
-                onClick={handleAddApp}
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                <span>添加应用</span>
-              </button>
             </div>
 
             {/* 自动创建新桌面 */}
@@ -256,15 +233,15 @@ export default function WorkModeSettings() {
 
             {/* 操作按钮 */}
             <div className="action-buttons">
-              <button 
+              <button
                 className="delete-button"
-                onClick={handleDeleteMode}
-                disabled={modes.length <= 1}
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={!modes || modes.length <= 1}
               >
                 <FontAwesomeIcon icon={faTrash} />
                 <span>删除模式</span>
               </button>
-              <button 
+              <button
                 className="save-button"
                 onClick={handleSaveMode}
                 disabled={!isEditing}
@@ -277,7 +254,14 @@ export default function WorkModeSettings() {
         ) : (
           <div className="settings-panel">
             <div className="empty-state">
-              <p>请选择一个工作模式进行配置</p>
+              <p>请选择一个工作模式进行配置，或创建新的工作模式</p>
+              <button
+                className="create-first-mode-button"
+                onClick={() => setShowNewModeDialog(true)}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+                <span>创建第一个工作模式</span>
+              </button>
             </div>
           </div>
         )}
@@ -289,7 +273,7 @@ export default function WorkModeSettings() {
           <div className="modal">
             <div className="modal-header">
               <h3>新建工作模式</h3>
-              <button 
+              <button
                 className="close-button"
                 onClick={() => setShowNewModeDialog(false)}
               >
@@ -318,18 +302,57 @@ export default function WorkModeSettings() {
               </div>
             </div>
             <div className="modal-footer">
-              <button 
+              <button
                 className="cancel-button"
                 onClick={() => setShowNewModeDialog(false)}
               >
                 取消
               </button>
-              <button 
+              <button
                 className="create-button"
                 onClick={handleCreateMode}
                 disabled={!newModeName.trim()}
               >
                 创建
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 删除确认对话框 */}
+      {showDeleteDialog && selectedMode && (
+        <div className="modal-overlay">
+          <div className="modal delete-modal">
+            <div className="modal-header">
+              <h3>确认删除</h3>
+              <button
+                className="close-button"
+                onClick={() => setShowDeleteDialog(false)}
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="delete-warning">
+                <FontAwesomeIcon icon={faTrash} className="warning-icon" />
+                <p>确定要删除工作模式 <strong>"{selectedMode.name}"</strong> 吗？</p>
+                <p className="warning-text">此操作无法撤销。</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="cancel-button"
+                onClick={() => setShowDeleteDialog(false)}
+              >
+                取消
+              </button>
+              <button
+                className="delete-confirm-button"
+                onClick={handleDeleteMode}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+                删除
               </button>
             </div>
           </div>

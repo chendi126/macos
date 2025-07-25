@@ -56,6 +56,9 @@ declare global {
       createWorkMode: (name: string, description?: string) => Promise<WorkMode>
       updateWorkMode: (id: string, updates: Partial<WorkMode>) => Promise<WorkMode | null>
       deleteWorkMode: (id: string) => Promise<boolean>
+      startWorkMode: (id: string) => Promise<boolean>
+      stopWorkMode: (id: string) => Promise<boolean>
+      getRunningModeId: () => Promise<string | null>
     }
   }
 }

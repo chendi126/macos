@@ -5,6 +5,7 @@ import { WorkMode } from '../types/electron'
 interface WorkModeState {
   modes: WorkMode[]
   selectedModeId: string | null
+  runningModeId: string | null
   loading: boolean
   error: string | null
 }
@@ -13,6 +14,7 @@ interface WorkModeState {
 type WorkModeAction = 
   | { type: 'SET_MODES'; payload: WorkMode[] }
   | { type: 'SET_SELECTED_MODE'; payload: string | null }
+  | { type: 'SET_RUNNING_MODE'; payload: string | null }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'ADD_MODE'; payload: WorkMode }
@@ -23,6 +25,7 @@ type WorkModeAction =
 const initialState: WorkModeState = {
   modes: [],
   selectedModeId: null,
+  runningModeId: null,
   loading: true,
   error: null
 }
@@ -31,9 +34,11 @@ const initialState: WorkModeState = {
 function workModeReducer(state: WorkModeState, action: WorkModeAction): WorkModeState {
   switch (action.type) {
     case 'SET_MODES':
-      return { ...state, modes: action.payload, loading: false }
+      return { ...state, modes: action.payload || [], loading: false }
     case 'SET_SELECTED_MODE':
       return { ...state, selectedModeId: action.payload }
+    case 'SET_RUNNING_MODE':
+      return { ...state, runningModeId: action.payload }
     case 'SET_LOADING':
       return { ...state, loading: action.payload }
     case 'SET_ERROR':
@@ -51,12 +56,17 @@ function workModeReducer(state: WorkModeState, action: WorkModeAction): WorkMode
           mode.id === action.payload.id ? action.payload : mode
         )
       }
-    case 'DELETE_MODE':
+    case 'DELETE_MODE': {
+      const remainingModes = state.modes.filter(mode => mode.id !== action.payload)
+      const newSelectedModeId = state.selectedModeId === action.payload 
+        ? (remainingModes.length > 0 ? remainingModes[0].id : null)
+        : state.selectedModeId
       return {
         ...state,
-        modes: state.modes.filter(mode => mode.id !== action.payload),
-        selectedModeId: state.selectedModeId === action.payload ? null : state.selectedModeId
+        modes: remainingModes,
+        selectedModeId: newSelectedModeId
       }
+    }
     default:
       return state
   }
@@ -91,15 +101,21 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
       const modes = await window.electronAPI.getAllWorkModes()
-      dispatch({ type: 'SET_MODES', payload: modes })
+      dispatch({ type: 'SET_MODES', payload: modes || [] })
+      
+      // 获取当前运行的模式ID
+      const runningModeId = await window.electronAPI.getRunningModeId()
+      dispatch({ type: 'SET_RUNNING_MODE', payload: runningModeId })
       
       // 如果没有选中的模式且有模式存在，选中第一个
-      if (!state.selectedModeId && modes.length > 0) {
+      if (!state.selectedModeId && modes && modes.length > 0) {
         dispatch({ type: 'SET_SELECTED_MODE', payload: modes[0].id })
       }
     } catch (error) {
       console.error('Error loading work modes:', error)
       dispatch({ type: 'SET_ERROR', payload: '加载工作模式失败' })
+      // 确保在错误情况下也设置一个空数组
+      dispatch({ type: 'SET_MODES', payload: [] })
     }
   }
 
@@ -158,16 +174,47 @@ export function WorkModeProvider({ children }: { children: ReactNode }) {
     return true
   }
 
-  // 启动模式 (暂时返回true)
+  // 启动模式
   const startMode = async (id: string): Promise<boolean> => {
-    console.log('Start mode:', id)
-    return true
+    try {
+      dispatch({ type: 'SET_ERROR', payload: null })
+      
+      // 如果有其他模式在运行，先停止它
+      if (state.runningModeId && state.runningModeId !== id) {
+        console.log('Stopping current running mode:', state.runningModeId)
+        // 这里可以添加实际的停止逻辑
+      }
+      
+      const success = await window.electronAPI.startWorkMode(id)
+      if (success) {
+        dispatch({ type: 'SET_RUNNING_MODE', payload: id })
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: '启动工作模式失败' })
+      }
+      return success
+    } catch (error) {
+      console.error('Error starting work mode:', error)
+      dispatch({ type: 'SET_ERROR', payload: '启动工作模式失败' })
+      return false
+    }
   }
 
-  // 停止模式 (暂时返回true)
+  // 停止模式
   const stopMode = async (id: string): Promise<boolean> => {
-    console.log('Stop mode:', id)
-    return true
+    try {
+      dispatch({ type: 'SET_ERROR', payload: null })
+      const success = await window.electronAPI.stopWorkMode(id)
+      if (success) {
+        dispatch({ type: 'SET_RUNNING_MODE', payload: null })
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: '停止工作模式失败' })
+      }
+      return success
+    } catch (error) {
+      console.error('Error stopping work mode:', error)
+      dispatch({ type: 'SET_ERROR', payload: '停止工作模式失败' })
+      return false
+    }
   }
 
   // 选择应用文件 (暂时返回null)

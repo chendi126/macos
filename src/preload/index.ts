@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createWorkMode: (name: string, description?: string) => ipcRenderer.invoke('create-work-mode', name, description),
   updateWorkMode: (id: string, updates: any) => ipcRenderer.invoke('update-work-mode', id, updates),
   deleteWorkMode: (id: string) => ipcRenderer.invoke('delete-work-mode', id),
+  startWorkMode: (id: string) => ipcRenderer.invoke('start-work-mode', id),
+  stopWorkMode: (id: string) => ipcRenderer.invoke('stop-work-mode', id),
+  getRunningModeId: () => ipcRenderer.invoke('get-running-mode-id'),
   
   // 监听应用使用更新
   onAppUsageUpdated: (callback: (data: any) => void) => {

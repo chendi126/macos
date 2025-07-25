@@ -85,6 +85,18 @@ ipcMain.handle('delete-work-mode', async (event, id: string) => {
   return workModeManager.deleteMode(id)
 })
 
+ipcMain.handle('start-work-mode', async (event, id: string) => {
+  return workModeManager.startMode(id)
+})
+
+ipcMain.handle('stop-work-mode', async (event, id: string) => {
+  return workModeManager.stopMode(id)
+})
+
+ipcMain.handle('get-running-mode-id', async () => {
+  return workModeManager.getCurrentRunningModeId()
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {

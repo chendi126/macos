@@ -46,6 +46,15 @@
   background-color: #C56B4A;
 }
 
+.mode-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mode-toggle-btn:disabled:hover {
+  background-color: #D4A574;
+}
+
 .back-button {
   display: flex;
   align-items: center;
@@ -127,6 +136,7 @@
 
 .mode-button.running {
   border-left: 4px solid #4CAF50;
+  background-color: #E8F5E8;
 }
 
 .mode-name {
@@ -141,6 +151,19 @@
   padding: 2px 6px;
   border-radius: 10px;
   margin-left: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .new-mode-button {
@@ -371,11 +394,11 @@
   border-radius: 50%;
 }
 
-input:checked + .toggle-label {
+input:checked+.toggle-label {
   background-color: #D4A574;
 }
 
-input:checked + .toggle-label:before {
+input:checked+.toggle-label:before {
   transform: translateX(18px);
 }
 
@@ -481,7 +504,7 @@ input:checked + .toggle-label:before {
     width: 240px;
     min-width: 240px;
   }
-  
+
   .settings-panel {
     padding: 16px;
   }
@@ -491,7 +514,7 @@ input:checked + .toggle-label:before {
   .settings-content {
     flex-direction: column;
   }
-  
+
   .mode-sidebar {
     width: 100%;
     min-width: auto;
@@ -499,28 +522,29 @@ input:checked + .toggle-label:before {
     border-right: none;
     border-bottom: 1px solid #F0EEED;
   }
-  
+
   .mode-list {
     display: flex;
     gap: 8px;
     overflow-x: auto;
     margin-bottom: 16px;
   }
-  
+
   .mode-item {
     margin-bottom: 0;
     flex-shrink: 0;
   }
-  
+
   .mode-button {
     white-space: nowrap;
     min-width: 120px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
 }
+
 /* 模态框样式 */
 .modal-overlay {
   position: fixed;
@@ -640,6 +664,32 @@ input:checked + .toggle-label:before {
   font-size: 14px;
 }
 
+/* 成功消息样式 */
+.success-message {
+  background-color: #E8F5E8;
+  color: #4CAF50;
+  padding: 12px 24px;
+  border-left: 4px solid #4CAF50;
+  margin-bottom: 16px;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.success-message p {
+  margin: 0;
+  font-size: 14px;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 加载状态样式 */
 .loading-state {
   display: flex;
@@ -661,9 +711,9 @@ input:checked + .toggle-label:before {
 .empty-state p {
   margin: 0;
   font-size: 16px;
-}/
-* 占位文本样式 */
-.placeholder-text {
+}
+
+* 占位文本样式 */ .placeholder-text {
   padding: 20px;
   text-align: center;
   color: #8B8073;
@@ -711,4 +761,100 @@ input:checked + .toggle-label:before {
 .empty-state p {
   margin: 0 0 16px 0;
   font-size: 16px;
+}
+
+/ * 删除确认对话框样式 */ .delete-modal {
+  max-width: 400px;
+}
+
+.delete-warning {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.warning-icon {
+  font-size: 48px;
+  color: #D97B5A;
+  margin-bottom: 16px;
+}
+
+.delete-warning p {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #2A2520;
+}
+
+.delete-warning .warning-text {
+  font-size: 14px;
+  color: #8B8073;
+  margin-top: 8px;
+}
+
+.delete-warning strong {
+  color: #D97B5A;
+}
+
+.delete-confirm-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #D97B5A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-confirm-button:hover {
+  background-color: #C56B4A;
+}
+
+/* 模态框动画 */
+.modal-overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 按钮禁用状态 */
+.delete-button:disabled,
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-button:disabled:hover,
+.save-button:disabled:hover {
+  background-color: #F0EEED;
+}
+
+.save-button:disabled:hover {
+  background-color: #D4A574;
 }
