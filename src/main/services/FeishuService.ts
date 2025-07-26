@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
+import { shell } from 'electron'
 import { DayStats, AppUsageData } from './AppTracker'
 
 export interface FeishuConfig {
@@ -8,6 +9,18 @@ export interface FeishuConfig {
   tableId: string // 应用详细数据表ID
   summaryTableId: string // 汇总数据表ID
   blockTypeId: string
+  isTemplate?: boolean // 是否为模板配置
+  userId?: string // 用户ID，用于区分不同用户
+}
+
+export interface TableCreationResult {
+  success: boolean
+  appToken?: string
+  tableId?: string
+  summaryTableId?: string
+  shareUrl?: string // 表格分享链接
+  accessInstructions?: string // 访问说明
+  error?: string
 }
 
 export interface FeishuRecord {
@@ -725,5 +738,963 @@ export class FeishuService {
         message: `连接错误: ${error instanceof Error ? error.message : 'Unknown error'}`
       }
     }
+  }
+
+  /**
+   * 生成飞书多维表格的URL
+   */
+  private generateTableUrl(tableId?: string): string {
+    const targetTableId = tableId || this.config.tableId
+    return `https://feishu.cn/base/${this.config.appToken}?table=${targetTableId}&view=vewqhz5UFN`
+  }
+
+  /**
+   * 打开飞书多维表格
+   */
+  async openTable(tableId?: string): Promise<void> {
+    try {
+      const url = this.generateTableUrl(tableId)
+      await shell.openExternal(url)
+      console.log('已打开飞书表格:', url)
+    } catch (error) {
+      console.error('打开飞书表格失败:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 打开应用详细数据表
+   */
+  async openDetailTable(): Promise<void> {
+    return this.openTable(this.config.tableId)
+  }
+
+  /**
+   * 打开汇总数据表
+   */
+  async openSummaryTable(): Promise<void> {
+    return this.openTable(this.config.summaryTableId)
+  }
+
+  /**
+   * 获取表格字段信息（用于调试字段名称问题）
+   */
+  async getTableFields(tableId: string): Promise<any> {
+    try {
+      await this.setAuthHeaders()
+
+      const response = await this.axiosInstance.get(
+        `/bitable/v1/apps/${this.config.appToken}/tables/${tableId}/fields`
+      )
+
+      if (response.data.code === 0) {
+        console.log(`Table ${tableId} fields:`, JSON.stringify(response.data.data.items, null, 2))
+        return response.data.data.items
+      } else {
+        console.error(`Failed to get table fields: ${response.data.msg}`)
+        return null
+      }
+    } catch (error) {
+      console.error('Error getting table fields:', error)
+      return null
+    }
+  }
+
+  /**
+   * 调试方法：获取所有表格的字段信息
+   */
+  async debugTableStructure(): Promise<void> {
+    console.log('=== 调试表格结构 ===')
+
+    console.log('\n1. 应用详细数据表字段:')
+    await this.getTableFields(this.config.tableId)
+
+    console.log('\n2. 汇总数据表字段:')
+    await this.getTableFields(this.config.summaryTableId)
+
+    console.log('=== 调试完成 ===')
+  }
+
+  /**
+   * 临时测试方法：使用指定的配置获取表格字段
+   */
+  static async testGetTableFields(): Promise<void> {
+    try {
+      // 使用提供的测试配置
+      const testConfig: FeishuConfig = {
+        appId: 'cli_a808ad9d0878d00c',
+        appSecret: 'RWK6uKuO6yNjpVq0IMcdVcyGFgJ5DAKg',
+        appToken: 'Wrw1bQmDVasiLXssPc8c9SjknRb',
+        tableId: 'tblvIdQDd3s2jVEL', // 应用详细数据表
+        summaryTableId: 'tblYtClzdFEqBwg8', // 汇总数据表
+        blockTypeId: ''
+      }
+
+      const testService = new FeishuService(testConfig)
+
+      console.log('=== 测试获取表格字段信息 ===')
+
+      console.log('\n1. 应用详细数据表字段 (tblvIdQDd3s2jVEL):')
+      await testService.getTableFields(testConfig.tableId)
+
+      console.log('\n2. 汇总数据表字段 (tblYtClzdFEqBwg8):')
+      await testService.getTableFields(testConfig.summaryTableId)
+
+      console.log('=== 测试完成 ===')
+    } catch (error) {
+      console.error('测试获取表格字段失败:', error)
+    }
+  }
+
+  /**
+   * 为用户创建独立的飞书多维表格
+   */
+  async createUserTable(userId: string, templateConfig: FeishuConfig): Promise<TableCreationResult> {
+    try {
+      // 确保有访问令牌
+      await this.setAuthHeaders()
+
+      // 1. 创建新的多维表格
+      const appResponse = await this.axiosInstance.post('/bitable/v1/apps', {
+        name: `桌面助手数据表_${userId}_${new Date().toISOString().split('T')[0]}`,
+        folder_token: '' // 可以指定文件夹，留空则创建在根目录
+      })
+
+      if (appResponse.data.code !== 0) {
+        throw new Error(`创建多维表格失败: ${appResponse.data.msg}`)
+      }
+
+      const newAppToken = appResponse.data.data.app.app_token
+      console.log('创建新多维表格成功:', newAppToken)
+
+      // 2. 创建应用详细数据表（4个字段）
+      const detailTableId = await this.createDetailTable(newAppToken)
+
+      // 3. 创建汇总数据表（5个字段）
+      const summaryTableId = await this.createSummaryTable(newAppToken)
+
+      // 4. 设置表格为公开可访问（任何人可查看和编辑）
+      try {
+        await this.setTablePublicAccess(newAppToken)
+        console.log('成功设置表格为公开访问')
+      } catch (error) {
+        console.warn('设置表格公开访问失败，但表格创建成功:', error)
+      }
+
+      // 5. 尝试设置用户编辑权限
+      try {
+        const hasEditPermission = await this.setUserEditPermission(newAppToken)
+        if (hasEditPermission) {
+          console.log('成功设置用户编辑权限')
+        } else {
+          console.warn('设置用户编辑权限失败，用户需要手动设置')
+        }
+      } catch (error) {
+        console.warn('设置用户编辑权限异常:', error)
+      }
+
+      // 6. 生成表格访问链接和说明
+      const shareUrl = this.generateTableUrl(detailTableId)
+      const accessInstructions = this.generateAccessInstructions(newAppToken, userId)
+
+      return {
+        success: true,
+        appToken: newAppToken,
+        tableId: detailTableId,
+        summaryTableId: summaryTableId,
+        shareUrl: shareUrl,
+        accessInstructions: accessInstructions
+      }
+
+    } catch (error) {
+      console.error('创建用户表格失败:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  /**
+   * 获取表格结构
+   */
+  private async getTableStructure(appToken: string): Promise<{detailTable: any, summaryTable: any}> {
+    // 确保有访问令牌
+    await this.setAuthHeaders()
+
+    // 获取应用详细数据表结构
+    const detailFieldsResponse = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${this.config.tableId}/fields`
+    )
+
+    // 获取汇总数据表结构
+    const summaryFieldsResponse = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${this.config.summaryTableId}/fields`
+    )
+
+    if (detailFieldsResponse.data.code !== 0 || summaryFieldsResponse.data.code !== 0) {
+      throw new Error('获取模板表格结构失败')
+    }
+
+    return {
+      detailTable: detailFieldsResponse.data.data.items,
+      summaryTable: summaryFieldsResponse.data.data.items
+    }
+  }
+
+  /**
+   * 根据模板结构创建数据表
+   */
+  private async createTableWithStructure(appToken: string, tableName: string, fields: any[]): Promise<string> {
+    // 确保有访问令牌
+    await this.setAuthHeaders()
+
+    // 1. 创建数据表
+    const tableResponse = await this.axiosInstance.post(
+      `/bitable/v1/apps/${appToken}/tables`,
+      {
+        table: {
+          name: tableName
+        }
+      }
+    )
+
+    if (tableResponse.data.code !== 0) {
+      throw new Error(`创建数据表 ${tableName} 失败: ${tableResponse.data.msg}`)
+    }
+
+    const tableId = tableResponse.data.data.table_id
+    console.log(`创建数据表 ${tableName} 成功:`, tableId)
+
+    // 2. 删除默认字段（除了第一个字段，通常是文本字段）
+    const defaultFields = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`
+    )
+
+    if (defaultFields.data.code === 0 && defaultFields.data.data.items.length > 1) {
+      // 删除除第一个字段外的所有默认字段
+      for (let i = 1; i < defaultFields.data.data.items.length; i++) {
+        const fieldId = defaultFields.data.data.items[i].field_id
+        await this.axiosInstance.delete(
+          `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${fieldId}`
+        )
+      }
+    }
+
+    // 3. 根据模板添加字段
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+
+      if (i === 0) {
+        // 更新第一个字段
+        await this.axiosInstance.put(
+          `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${defaultFields.data.data.items[0].field_id}`,
+          {
+            field_name: field.field_name,
+            type: field.type,
+            property: field.property
+          }
+        )
+      } else {
+        // 添加新字段
+        await this.axiosInstance.post(
+          `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+          {
+            field_name: field.field_name,
+            type: field.type,
+            property: field.property
+          }
+        )
+      }
+    }
+
+    return tableId
+  }
+
+  /**
+   * 创建应用详细数据表（4个字段）
+   */
+  private async createDetailTable(appToken: string): Promise<string> {
+    await this.setAuthHeaders()
+
+    // 1. 创建数据表
+    const tableResponse = await this.axiosInstance.post(
+      `/bitable/v1/apps/${appToken}/tables`,
+      {
+        table: {
+          name: '应用详细数据'
+        }
+      }
+    )
+
+    if (tableResponse.data.code !== 0) {
+      throw new Error(`创建应用详细数据表失败: ${tableResponse.data.msg}`)
+    }
+
+    const tableId = tableResponse.data.data.table_id
+    console.log('创建应用详细数据表成功:', tableId)
+
+    // 2. 获取默认字段
+    const defaultFields = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`
+    )
+
+    // 3. 更新第一个字段为 Date
+    if (defaultFields.data.code === 0 && defaultFields.data.data.items.length > 0) {
+      const firstFieldId = defaultFields.data.data.items[0].field_id
+      await this.axiosInstance.put(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${firstFieldId}`,
+        {
+          field_name: '日期',
+          type: 5, // 日期时间类型
+          property: {}
+        }
+      )
+    }
+
+    // 4. 添加其他字段
+    const fieldsToAdd = [
+      {
+        field_name: '应用名称',
+        type: 1, // 文本类型
+        property: {}
+      },
+      {
+        field_name: '使用时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '占比',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.000'
+        }
+      }
+    ]
+
+    for (const field of fieldsToAdd) {
+      await this.axiosInstance.post(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+        field
+      )
+    }
+
+    console.log('应用详细数据表字段创建完成，共4个字段')
+    return tableId
+  }
+
+  /**
+   * 创建汇总数据表（5个字段）
+   */
+  private async createSummaryTable(appToken: string): Promise<string> {
+    await this.setAuthHeaders()
+
+    // 1. 创建数据表
+    const tableResponse = await this.axiosInstance.post(
+      `/bitable/v1/apps/${appToken}/tables`,
+      {
+        table: {
+          name: '汇总数据'
+        }
+      }
+    )
+
+    if (tableResponse.data.code !== 0) {
+      throw new Error(`创建汇总数据表失败: ${tableResponse.data.msg}`)
+    }
+
+    const tableId = tableResponse.data.data.table_id
+    console.log('创建汇总数据表成功:', tableId)
+
+    // 2. 获取默认字段
+    const defaultFields = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`
+    )
+
+    // 3. 更新第一个字段为 Date
+    if (defaultFields.data.code === 0 && defaultFields.data.data.items.length > 0) {
+      const firstFieldId = defaultFields.data.data.items[0].field_id
+      await this.axiosInstance.put(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${firstFieldId}`,
+        {
+          field_name: '日期',
+          type: 5, // 日期时间类型
+          property: {}
+        }
+      )
+    }
+
+    // 4. 添加其他字段
+    const fieldsToAdd = [
+      {
+        field_name: '总时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '专注时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '分心时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '效率得分',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.000'
+        }
+      }
+    ]
+
+    for (const field of fieldsToAdd) {
+      await this.axiosInstance.post(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+        field
+      )
+    }
+
+    console.log('汇总数据表字段创建完成，共5个字段')
+    return tableId
+  }
+
+  /**
+   * 设置表格为公开访问
+   */
+  private async setTablePublicAccess(appToken: string): Promise<void> {
+    await this.setAuthHeaders()
+
+    try {
+      // 方法1: 使用多维表格权限API设置编辑权限
+      const bitablePermissionResponse = await this.axiosInstance.patch(
+        `/bitable/v1/apps/${appToken}`,
+        {
+          is_advanced: false, // 设置为基础版本
+          revision: 1 // 版本号
+        }
+      )
+
+      if (bitablePermissionResponse.data.code === 0) {
+        console.log('成功设置多维表格基础权限')
+      }
+    } catch (error) {
+      console.log('设置多维表格基础权限失败:', error.message)
+    }
+
+    try {
+      // 方法2: 尝试设置表格的公开权限
+      const response = await this.axiosInstance.patch(
+        `/drive/v1/permissions/${appToken}/public`,
+        {
+          link_share_entity: 'anyone_can_edit', // 任何人可编辑
+          is_external_access_allowed: true, // 允许外部访问
+          security_policy: 'anyone_can_edit' // 任何人可编辑
+        }
+      )
+
+      if (response.data.code === 0) {
+        console.log('成功设置表格为公开编辑访问')
+        return
+      } else {
+        console.log('方法2失败，尝试方法3:', response.data.msg)
+      }
+    } catch (error) {
+      console.log('方法2异常，尝试方法3:', error.message)
+    }
+
+    try {
+      // 方法3: 尝试创建公开分享链接
+      const shareResponse = await this.axiosInstance.post(
+        `/drive/v1/permissions/${appToken}/public`,
+        {
+          external_access: true, // 允许外部访问
+          security_policy: 'anyone_can_edit', // 任何人可编辑
+          comment_entity: 'anyone_can_edit', // 任何人可编辑评论
+          share_entity: 'anyone_can_edit', // 任何人可编辑分享
+          link_share_entity: 'anyone_can_edit' // 链接分享权限
+        }
+      )
+
+      if (shareResponse.data.code === 0) {
+        console.log('成功创建公开编辑分享链接')
+        return
+      } else {
+        console.log('方法3也失败:', shareResponse.data.msg)
+      }
+    } catch (error) {
+      console.log('方法3异常:', error.message)
+    }
+
+    try {
+      // 方法4: 尝试设置协作者权限
+      const collaboratorResponse = await this.axiosInstance.post(
+        `/drive/v1/permissions/${appToken}/members`,
+        {
+          member_type: 'anyone', // 任何人
+          perm: 'edit', // 编辑权限
+          type: 'user'
+        }
+      )
+
+      if (collaboratorResponse.data.code === 0) {
+        console.log('成功设置协作者编辑权限')
+        return
+      } else {
+        console.log('方法4也失败:', collaboratorResponse.data.msg)
+      }
+    } catch (error) {
+      console.log('方法4异常:', error.message)
+    }
+
+    // 如果都失败了，记录警告但不抛出错误
+    console.warn('无法自动设置表格编辑权限，用户需要手动设置权限')
+  }
+
+  /**
+   * 为特定用户设置表格编辑权限
+   */
+  async setUserEditPermission(appToken: string, userAccessToken?: string): Promise<boolean> {
+    try {
+      const headers = userAccessToken ?
+        { 'Authorization': `Bearer ${userAccessToken}` } :
+        await this.getAuthHeaders()
+
+      // 方法1: 尝试设置当前用户为表格编辑者
+      const memberResponse = await this.axiosInstance.post(
+        `/drive/v1/permissions/${appToken}/members`,
+        {
+          member_type: 'user',
+          member_id: 'me', // 当前用户
+          perm: 'edit', // 编辑权限
+          type: 'user'
+        },
+        { headers }
+      )
+
+      if (memberResponse.data.code === 0) {
+        console.log('成功设置用户编辑权限')
+        return true
+      }
+
+      // 方法2: 尝试通过多维表格API设置权限
+      const bitableResponse = await this.axiosInstance.patch(
+        `/bitable/v1/apps/${appToken}`,
+        {
+          is_advanced: false, // 基础版本，权限更开放
+        },
+        { headers }
+      )
+
+      if (bitableResponse.data.code === 0) {
+        console.log('成功设置多维表格为基础版本')
+        return true
+      }
+
+      return false
+    } catch (error) {
+      console.error('设置用户编辑权限失败:', error)
+      return false
+    }
+  }
+
+  /**
+   * 检查用户是否有表格编辑权限
+   */
+  async checkUserEditPermission(appToken: string): Promise<boolean> {
+    try {
+      await this.setAuthHeaders()
+
+      // 尝试获取表格信息来检查权限
+      const response = await this.axiosInstance.get(
+        `/bitable/v1/apps/${appToken}`
+      )
+
+      if (response.data.code === 0) {
+        // 尝试获取表格列表来进一步验证编辑权限
+        const tablesResponse = await this.axiosInstance.get(
+          `/bitable/v1/apps/${appToken}/tables`
+        )
+
+        if (tablesResponse.data.code === 0) {
+          console.log('用户具有表格访问权限')
+          return true
+        }
+      }
+
+      return false
+    } catch (error) {
+      console.error('检查用户编辑权限失败:', error)
+      return false
+    }
+  }
+
+  /**
+   * 获取表格权限信息
+   */
+  async getTablePermissions(appToken: string): Promise<any> {
+    try {
+      await this.setAuthHeaders()
+
+      const response = await this.axiosInstance.get(
+        `/drive/v1/permissions/${appToken}/members`
+      )
+
+      if (response.data.code === 0) {
+        console.log('表格权限信息:', response.data.data)
+        return response.data.data
+      }
+
+      return null
+    } catch (error) {
+      console.error('获取表格权限信息失败:', error)
+      return null
+    }
+  }
+
+  /**
+   * 生成表格访问说明
+   */
+  private generateAccessInstructions(appToken: string, userId: string): string {
+    return `
+🎉 您的专属数据表格已创建成功！
+
+📋 表格信息：
+• 表格名称：桌面助手数据表_${userId}_${new Date().toISOString().split('T')[0]}
+• 表格ID：${appToken}
+
+🔑 访问方法：
+1. 打开飞书应用
+2. 在工作台中找到您的新表格
+3. 如果找不到，请在飞书中搜索表格名称
+
+🔧 设置编辑权限（重要）：
+为了确保您能正常编辑表格数据，请按以下步骤设置权限：
+
+方法一：通过分享设置
+1. 打开表格后，点击右上角的"分享"按钮
+2. 在分享设置中，选择"任何人可编辑"
+3. 或者选择"组织内可编辑"（推荐）
+4. 点击"保存"确认设置
+
+方法二：通过协作设置
+1. 在表格中点击右上角的"协作"按钮
+2. 添加协作者或设置协作权限
+3. 选择"编辑者"权限级别
+4. 保存设置
+
+方法三：检查表格权限
+1. 在表格设置中找到"权限管理"
+2. 确保当前用户有"编辑"权限
+3. 如果没有，请联系表格创建者添加权限
+
+📊 表格包含：
+• 应用详细数据表：记录每个应用的使用详情
+• 汇总数据表：记录每日的使用汇总统计
+
+现在您可以开始导出数据到您的专属表格了！
+    `.trim()
+  }
+
+  /**
+   * 获取当前用户信息
+   */
+  private async getCurrentUserInfo(): Promise<any> {
+    try {
+      await this.setAuthHeaders()
+
+      const response = await this.axiosInstance.get('/authen/v1/user_info')
+
+      if (response.data.code === 0) {
+        return response.data.data
+      } else {
+        console.error('获取用户信息失败:', response.data.msg)
+        return null
+      }
+    } catch (error) {
+      console.error('获取用户信息时发生错误:', error)
+      return null
+    }
+  }
+
+  /**
+   * 使用用户访问令牌创建多维表格
+   */
+  async createUserOwnedTable(tableName: string): Promise<TableCreationResult> {
+    try {
+      if (!this.userAccessToken) {
+        throw new Error('User not logged in')
+      }
+
+      // 1. 创建多维表格
+      const appResponse = await this.axiosInstance.post('/bitable/v1/apps', {
+        name: tableName,
+        folder_token: '' // 可以指定文件夹，空字符串表示根目录
+      }, {
+        headers: {
+          'Authorization': `Bearer ${this.userAccessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (appResponse.data.code !== 0) {
+        throw new Error(`Failed to create bitable: ${appResponse.data.msg}`)
+      }
+
+      const newAppToken = appResponse.data.data.app.app_token
+      console.log('创建用户多维表格成功:', newAppToken)
+
+      // 2. 创建应用详细数据表（4个字段）
+      const detailTableId = await this.createUserDetailTable(newAppToken)
+
+      // 3. 创建汇总数据表（5个字段）
+      const summaryTableId = await this.createUserSummaryTable(newAppToken)
+
+      // 4. 设置用户编辑权限
+      try {
+        const hasEditPermission = await this.setUserEditPermission(newAppToken, this.userAccessToken)
+        if (hasEditPermission) {
+          console.log('成功设置用户表格编辑权限')
+        } else {
+          console.warn('设置用户表格编辑权限失败')
+        }
+      } catch (error) {
+        console.warn('设置用户表格编辑权限异常:', error)
+      }
+
+      return {
+        success: true,
+        appToken: newAppToken,
+        tableId: detailTableId,
+        summaryTableId: summaryTableId
+      }
+
+    } catch (error) {
+      console.error('Error creating user owned table:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  /**
+   * 使用用户访问令牌创建应用详细数据表
+   */
+  private async createUserDetailTable(appToken: string): Promise<string> {
+    if (!this.userAccessToken) {
+      throw new Error('User not logged in')
+    }
+
+    // 1. 创建数据表
+    const tableResponse = await this.axiosInstance.post(
+      `/bitable/v1/apps/${appToken}/tables`,
+      {
+        table: {
+          name: '应用详细数据'
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${this.userAccessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    if (tableResponse.data.code !== 0) {
+      throw new Error(`创建应用详细数据表失败: ${tableResponse.data.msg}`)
+    }
+
+    const tableId = tableResponse.data.data.table_id
+    console.log('创建应用详细数据表成功:', tableId)
+
+    // 2. 获取默认字段
+    const defaultFields = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.userAccessToken}`
+        }
+      }
+    )
+
+    // 3. 更新第一个字段为 日期
+    if (defaultFields.data.code === 0 && defaultFields.data.data.items.length > 0) {
+      const firstFieldId = defaultFields.data.data.items[0].field_id
+      await this.axiosInstance.put(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${firstFieldId}`,
+        {
+          field_name: '日期',
+          type: 5, // 日期时间类型
+          property: {}
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.userAccessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    }
+
+    // 4. 添加其他字段
+    const fieldsToAdd = [
+      {
+        field_name: '应用名称',
+        type: 1, // 文本类型
+        property: {}
+      },
+      {
+        field_name: '使用时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '占比',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.000'
+        }
+      }
+    ]
+
+    for (const field of fieldsToAdd) {
+      await this.axiosInstance.post(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+        field,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.userAccessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    }
+
+    console.log('应用详细数据表字段创建完成，共4个字段')
+    return tableId
+  }
+
+  /**
+   * 使用用户访问令牌创建汇总数据表
+   */
+  private async createUserSummaryTable(appToken: string): Promise<string> {
+    if (!this.userAccessToken) {
+      throw new Error('User not logged in')
+    }
+
+    // 1. 创建数据表
+    const tableResponse = await this.axiosInstance.post(
+      `/bitable/v1/apps/${appToken}/tables`,
+      {
+        table: {
+          name: '汇总数据'
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${this.userAccessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    if (tableResponse.data.code !== 0) {
+      throw new Error(`创建汇总数据表失败: ${tableResponse.data.msg}`)
+    }
+
+    const tableId = tableResponse.data.data.table_id
+    console.log('创建汇总数据表成功:', tableId)
+
+    // 2. 获取默认字段
+    const defaultFields = await this.axiosInstance.get(
+      `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.userAccessToken}`
+        }
+      }
+    )
+
+    // 3. 更新第一个字段为 日期
+    if (defaultFields.data.code === 0 && defaultFields.data.data.items.length > 0) {
+      const firstFieldId = defaultFields.data.data.items[0].field_id
+      await this.axiosInstance.put(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields/${firstFieldId}`,
+        {
+          field_name: '日期',
+          type: 5, // 日期时间类型
+          property: {}
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.userAccessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    }
+
+    // 4. 添加其他字段
+    const fieldsToAdd = [
+      {
+        field_name: '总时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '专注时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '分心时长',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.00'
+        }
+      },
+      {
+        field_name: '效率得分',
+        type: 2, // 数字类型
+        property: {
+          formatter: '0.000'
+        }
+      }
+    ]
+
+    for (const field of fieldsToAdd) {
+      await this.axiosInstance.post(
+        `/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
+        field,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.userAccessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    }
+
+    console.log('汇总数据表字段创建完成，共5个字段')
+    return tableId
   }
 }

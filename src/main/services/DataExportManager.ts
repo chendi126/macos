@@ -1,15 +1,26 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { app } from 'electron'
-import { FeishuService, FeishuConfig, ExportSummary, WorkModeSession } from './FeishuService'
+import { FeishuService, FeishuConfig, ExportSummary, WorkModeSession, TableCreationResult } from './FeishuService'
 import { AppTracker, DayStats } from './AppTracker'
 import { WorkModeManager } from './WorkModeManager'
+import * as os from 'os'
+import * as crypto from 'crypto'
 
 export interface ExportConfig {
   feishu: FeishuConfig
   autoExport: boolean
   exportInterval: number // 小时
   lastExportTime: number
+  autoOpenTable: boolean // 导出成功后自动打开表格
+  userId?: string // 用户ID
+  isUserTable?: boolean // 是否为用户独立表格
+}
+
+export interface UserTableSetupResult {
+  success: boolean
+  config?: FeishuConfig
+  error?: string
 }
 
 export interface ExportResult {
@@ -72,7 +83,8 @@ export class DataExportManager {
         feishu: config,
         autoExport: this.config?.autoExport || false,
         exportInterval: this.config?.exportInterval || 24, // 默认24小时
-        lastExportTime: this.config?.lastExportTime || 0
+        lastExportTime: this.config?.lastExportTime || 0,
+        autoOpenTable: this.config?.autoOpenTable ?? true // 默认启用自动打开表格
       }
       
       this.feishuService = new FeishuService(config)
@@ -138,6 +150,16 @@ export class DataExportManager {
       }
 
       const allSuccess = summaries.every(s => s.success)
+
+      // 如果导出成功且配置了自动打开表格，自动打开飞书表格
+      if (allSuccess && this.config?.autoOpenTable) {
+        try {
+          await this.feishuService.openDetailTable()
+        } catch (error) {
+          console.warn('自动打开飞书表格失败:', error)
+          // 不影响导出结果，只是警告
+        }
+      }
 
       return {
         success: allSuccess,
@@ -224,6 +246,16 @@ export class DataExportManager {
 
       const allSuccess = summaries.every(s => s.success)
 
+      // 如果导出成功且配置了自动打开表格，自动打开飞书汇总表格
+      if (allSuccess && this.config?.autoOpenTable) {
+        try {
+          await this.feishuService.openSummaryTable()
+        } catch (error) {
+          console.warn('自动打开飞书汇总表格失败:', error)
+          // 不影响导出结果，只是警告
+        }
+      }
+
       return {
         success: allSuccess,
         summary: summaries,
@@ -283,6 +315,22 @@ export class DataExportManager {
     }
   }
 
+  // 设置自动打开表格
+  public setAutoOpenTable(enabled: boolean): boolean {
+    try {
+      if (!this.config) {
+        return false
+      }
+
+      this.config.autoOpenTable = enabled
+      this.saveConfig()
+      return true
+    } catch (error) {
+      console.error('Error setting auto open table:', error)
+      return false
+    }
+  }
+
   // 启动自动导出
   private startAutoExport() {
     if (!this.config || !this.config.autoExport) {
@@ -318,6 +366,105 @@ export class DataExportManager {
       autoExport: this.config?.autoExport || false,
       exportInterval: this.config?.exportInterval || 24,
       lastExportTime: this.config?.lastExportTime || 0
+    }
+  }
+
+  /**
+   * 生成用户ID
+   */
+  private generateUserId(): string {
+    const hostname = os.hostname()
+    const username = os.userInfo().username
+    const machineId = `${hostname}-${username}`
+    return crypto.createHash('md5').update(machineId).digest('hex').substring(0, 8)
+  }
+
+  /**
+   * 为当前用户创建独立的飞书表格
+   */
+  async createUserTable(templateConfig: FeishuConfig): Promise<UserTableSetupResult> {
+    try {
+      const userId = this.generateUserId()
+      console.log('为用户创建独立表格, 用户ID:', userId)
+
+      // 使用模板配置创建FeishuService实例
+      const templateService = new FeishuService(templateConfig)
+
+      // 创建用户表格
+      const result = await templateService.createUserTable(userId, templateConfig)
+
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error
+        }
+      }
+
+      // 创建用户专属配置
+      const userConfig: FeishuConfig = {
+        appId: templateConfig.appId,
+        appSecret: templateConfig.appSecret,
+        appToken: result.appToken!,
+        tableId: result.tableId!,
+        summaryTableId: result.summaryTableId!,
+        blockTypeId: templateConfig.blockTypeId,
+        userId: userId,
+        isTemplate: false
+      }
+
+      // 保存用户配置
+      this.config = {
+        feishu: userConfig,
+        autoExport: false,
+        exportInterval: 24,
+        lastExportTime: 0,
+        autoOpenTable: true,
+        userId: userId,
+        isUserTable: true
+      }
+
+      this.feishuService = new FeishuService(userConfig)
+      this.saveConfig()
+
+      return {
+        success: true,
+        config: userConfig,
+        shareUrl: result.shareUrl,
+        accessInstructions: result.accessInstructions
+      }
+
+    } catch (error) {
+      console.error('创建用户表格失败:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  /**
+   * 检查是否需要创建用户表格
+   */
+  isUsingSharedTable(): boolean {
+    return !this.config?.isUserTable
+  }
+
+  /**
+   * 获取用户ID
+   */
+  getUserId(): string {
+    return this.config?.userId || this.generateUserId()
+  }
+
+  /**
+   * 调试表格结构
+   */
+  async debugTableStructure(): Promise<void> {
+    if (this.feishuService) {
+      await this.feishuService.debugTableStructure()
+    } else {
+      console.log('飞书服务未配置，使用测试配置获取字段信息...')
+      await FeishuService.testGetTableFields()
     }
   }
 }

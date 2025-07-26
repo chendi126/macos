@@ -11,9 +11,11 @@ import {
   faCalendarDay,
   faSpinner,
   faExclamationTriangle,
-  faCloudUpload
+  faCloudUpload,
+  faTable,
+  faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons'
-import { FeishuConfig, ExportConfig, ExportStatus, ExportResult } from '../types/electron'
+import { FeishuConfig, ExportConfig, ExportStatus, ExportResult, UserTableSetupResult } from '../types/electron'
 import './DataExport.css'
 
 export default function DataExport() {
@@ -33,11 +35,18 @@ export default function DataExport() {
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [exportResult, setExportResult] = useState<ExportResult | null>(null)
   const [autoExportInterval, setAutoExportInterval] = useState(24)
+  const [autoOpenTable, setAutoOpenTable] = useState(true)
+  const [isUsingSharedTable, setIsUsingSharedTable] = useState(true)
+  const [userId, setUserId] = useState('')
+  const [isCreatingUserTable, setIsCreatingUserTable] = useState(false)
+  const [showAccessInstructions, setShowAccessInstructions] = useState(false)
+  const [accessInstructions, setAccessInstructions] = useState('')
+
 
   // 加载配置和状态
   useEffect(() => {
     const initializeData = async () => {
-      await Promise.all([loadConfig(), loadStatus()])
+      await Promise.all([loadConfig(), loadStatus(), loadUserTableStatus()])
       setIsInitialLoading(false)
     }
     initializeData()
@@ -50,6 +59,7 @@ export default function DataExport() {
         setExportConfig(savedConfig)
         setConfig(savedConfig.feishu)
         setAutoExportInterval(savedConfig.exportInterval)
+        setAutoOpenTable(savedConfig.autoOpenTable ?? true) // 默认启用
       }
     } catch (error) {
       console.error('Error loading export config:', error)
@@ -147,6 +157,84 @@ export default function DataExport() {
     }
   }
 
+  const loadUserTableStatus = async () => {
+    try {
+      const [isShared, currentUserId] = await Promise.all([
+        window.electronAPI.isUsingSharedTable(),
+        window.electronAPI.getUserId()
+      ])
+      setIsUsingSharedTable(isShared)
+      setUserId(currentUserId)
+    } catch (error) {
+      console.error('Error loading user table status:', error)
+    }
+  }
+
+  // 创建用户独立表格
+  const createUserTable = async () => {
+    if (!config.appId || !config.appSecret) {
+      alert('请先配置飞书应用信息')
+      return
+    }
+
+    setIsCreatingUserTable(true)
+    try {
+      const templateConfig: FeishuConfig = {
+        ...config,
+        isTemplate: true
+      }
+
+      const result: UserTableSetupResult = await window.electronAPI.createUserTable(templateConfig)
+
+      if (result.success && result.config) {
+        setConfig(result.config)
+        setIsUsingSharedTable(false)
+        await loadConfig() // 重新加载配置
+        await loadStatus() // 重新加载状态
+
+        // 显示详细的访问说明
+        if (result.accessInstructions) {
+          setAccessInstructions(result.accessInstructions)
+          setShowAccessInstructions(true)
+        } else {
+          alert('用户独立表格创建成功！现在您拥有了专属的数据表格。')
+        }
+      } else {
+        alert(`创建用户表格失败: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Error creating user table:', error)
+      alert('创建用户表格时发生错误')
+    } finally {
+      setIsCreatingUserTable(false)
+    }
+  }
+
+  // 处理自动打开表格设置变化
+  const handleAutoOpenTableChange = async (enabled: boolean) => {
+    try {
+      await window.electronAPI.setAutoOpenTable(enabled)
+      setAutoOpenTable(enabled)
+    } catch (error) {
+      console.error('Error setting auto open table:', error)
+      // 如果设置失败，恢复原来的状态
+      setAutoOpenTable(!enabled)
+    }
+  }
+
+  // 调试表格结构
+  const debugTableStructure = async () => {
+    try {
+      await window.electronAPI.debugTableStructure()
+      alert('表格结构信息已输出到控制台，请查看开发者工具')
+    } catch (error) {
+      console.error('Error debugging table structure:', error)
+      alert('调试表格结构失败')
+    }
+  }
+
+
+
   const formatTime = (timestamp: number) => {
     if (!timestamp) return '从未'
     return new Date(timestamp).toLocaleString()
@@ -195,7 +283,7 @@ export default function DataExport() {
       </div>
 
       <div className="page-content">
-        {/* 飞书配置区域 */}
+        {/* 表格配置区域 */}
         <motion.div
           className="export-section"
           initial={{ opacity: 0, y: 20 }}
@@ -203,10 +291,137 @@ export default function DataExport() {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div className="section-header">
+            <FontAwesomeIcon icon={faTable} className="section-icon" />
+            <h2>表格配置</h2>
+          </div>
+
+          <div className="user-table-config">
+            <div className="table-status">
+              <div className="status-info">
+                <h3>当前表格状态</h3>
+                <p className={`status-text ${isUsingSharedTable ? 'shared' : 'private'}`}>
+                  {isUsingSharedTable ? '使用共享表格' : '使用独立表格'}
+                </p>
+                <p className="user-id">用户ID: {userId}</p>
+                {isUsingSharedTable && (
+                  <div className="warning-message">
+                    <FontAwesomeIcon icon={faExclamationTriangle} />
+                    <span>您正在使用共享表格，数据可能被其他用户看到</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="table-actions">
+                {isUsingSharedTable && (
+                  <>
+                    <button
+                      className="btn btn-primary"
+                      onClick={createUserTable}
+                      disabled={isCreatingUserTable}
+                    >
+                      {isCreatingUserTable ? (
+                        <>
+                          <FontAwesomeIcon icon={faSpinner} spin />
+                          创建中...
+                        </>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faUpload} />
+                          创建独立表格
+                        </>
+                      )}
+                    </button>
+                    <p className="action-description">
+                      创建您专属的飞书表格，确保数据隐私
+                    </p>
+                  </>
+                )}
+
+                {!isUsingSharedTable && (
+                  <div className="private-table-info">
+                    <p>✅ 您正在使用独立表格</p>
+                    <p>数据安全，仅您可见</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+
+
+        {/* 飞书配置区域 */}
+        <motion.div
+          className="export-section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <div className="section-header">
             <FontAwesomeIcon icon={faCog} className="section-icon" />
             <h2>飞书配置</h2>
           </div>
-          
+
+          {/* 配置指导说明 */}
+          <div className="config-guide">
+            <div className="guide-header">
+              <h3>📋 配置指导</h3>
+              <p>按照以下步骤获取飞书应用配置信息：</p>
+            </div>
+
+            <div className="guide-steps">
+              <div className="step">
+                <div className="step-number">1</div>
+                <div className="step-content">
+                  <h4>创建飞书应用</h4>
+                  <p>访问 <a href="https://open.feishu.cn/app" target="_blank" rel="noopener noreferrer">飞书开放平台</a></p>
+                  <p>点击"创建企业自建应用"，填写应用名称和描述</p>
+                </div>
+              </div>
+
+              <div className="step">
+                <div className="step-number">2</div>
+                <div className="step-content">
+                  <h4>获取应用凭证</h4>
+                  <p>在应用详情页面，找到"凭证与基础信息"</p>
+                  <p>复制 <strong>App ID</strong> 和 <strong>App Secret</strong></p>
+                </div>
+              </div>
+
+              <div className="step">
+                <div className="step-number">3</div>
+                <div className="step-content">
+                  <h4>配置应用权限</h4>
+                  <p>在"权限管理"中添加以下权限：</p>
+                  <ul>
+                    <li>多维表格：读取、编辑多维表格</li>
+                    <li>云文档：读取、编辑云文档</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="step">
+                <div className="step-number">4</div>
+                <div className="step-content">
+                  <h4>创建多维表格</h4>
+                  <p>在飞书中创建一个新的多维表格</p>
+                  <p>从表格URL中获取 <strong>多维表格Token</strong></p>
+                  <p>格式：https://feishu.cn/base/<strong>bascnxxxxxx</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <div className="guide-tips">
+              <h4>💡 小贴士</h4>
+              <ul>
+                <li>应用创建后需要发布才能正常使用</li>
+                <li>确保应用权限配置正确，否则可能无法访问表格</li>
+                <li>多维表格Token可以从表格分享链接中获取</li>
+                <li>如果不确定表格ID，可以先点击"创建独立表格"自动生成</li>
+              </ul>
+            </div>
+          </div>
+
           <div className="config-form">
             <div className="form-row">
               <div className="form-group">
@@ -289,6 +504,18 @@ export default function DataExport() {
                   </>
                 )}
               </button>
+
+              {connectionStatus?.success && (
+                <button
+                  className="btn btn-secondary"
+                  onClick={debugTableStructure}
+                  disabled={isLoading}
+                  style={{ marginLeft: '10px' }}
+                >
+                  <FontAwesomeIcon icon={faCog} />
+                  调试表格结构
+                </button>
+              )}
             </div>
             
             {connectionStatus && (
@@ -299,6 +526,8 @@ export default function DataExport() {
             )}
           </div>
         </motion.div>
+
+
 
         {/* 导出操作区域 */}
         {exportStatus?.configured && (
@@ -415,6 +644,18 @@ export default function DataExport() {
                     />
                   </div>
 
+                  <div className="auto-open-setting">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={autoOpenTable}
+                        onChange={(e) => handleAutoOpenTableChange(e.target.checked)}
+                      />
+                      <span className="checkmark"></span>
+                      导出成功后自动打开飞书表格
+                    </label>
+                  </div>
+
                   <button
                     className={`btn ${exportStatus.autoExport ? 'btn-danger' : 'btn-success'}`}
                     onClick={toggleAutoExport}
@@ -499,6 +740,34 @@ export default function DataExport() {
           </motion.div>
         )}
       </div>
+
+      {/* 访问说明模态对话框 */}
+      {showAccessInstructions && (
+        <div className="modal-overlay" onClick={() => setShowAccessInstructions(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🎉 表格创建成功！</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowAccessInstructions(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <pre className="access-instructions">{accessInstructions}</pre>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowAccessInstructions(false)}
+              >
+                我知道了
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

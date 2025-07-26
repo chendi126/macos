@@ -135,6 +135,127 @@
   margin: 0;
 }
 
+/* 配置指导 */
+.config-guide {
+  background-color: #F9F7F4;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #F0EEED;
+}
+
+.guide-header h3 {
+  color: #2A2520;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.guide-header p {
+  color: #6C757D;
+  font-size: 14px;
+  margin: 0 0 20px 0;
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.step-number {
+  background-color: #8B4513;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h4 {
+  color: #2A2520;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+}
+
+.step-content p {
+  color: #6C757D;
+  font-size: 13px;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.step-content ul {
+  margin: 6px 0 0 0;
+  padding-left: 16px;
+}
+
+.step-content li {
+  color: #6C757D;
+  font-size: 13px;
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.step-content a {
+  color: #8B4513;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.step-content a:hover {
+  text-decoration: underline;
+}
+
+.step-content strong {
+  color: #2A2520;
+  font-weight: 600;
+}
+
+.guide-tips {
+  background-color: #FFF8E1;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid #FFC107;
+}
+
+.guide-tips h4 {
+  color: #2A2520;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.guide-tips ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.guide-tips li {
+  color: #6C757D;
+  font-size: 13px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
 /* 配置表单 */
 .config-form {
   display: flex;
@@ -407,6 +528,130 @@
   background-color: white;
 }
 
+.auto-open-setting {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #2A2520;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #D4A574;
+  border-radius: 4px;
+  background-color: #F9F7F4;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background-color: #D4A574;
+  border-color: #D4A574;
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkbox-label:hover input[type="checkbox"] {
+  border-color: #C19A5B;
+}
+
+/* 用户表格设置样式 */
+.user-table-config {
+  background-color: #F9F7F4;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #F0EEED;
+}
+
+.table-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.status-info h3 {
+  color: #2A2520;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.status-text.shared {
+  background-color: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFEAA7;
+}
+
+.status-text.private {
+  background-color: #D4EDDA;
+  color: #155724;
+  border: 1px solid #C3E6CB;
+}
+
+.user-id {
+  color: #6C757D;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #856404;
+  font-size: 13px;
+  background-color: #FFF3CD;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #FFEAA7;
+}
+
+.table-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.action-description {
+  color: #6C757D;
+  font-size: 12px;
+  text-align: right;
+  margin: 0;
+  max-width: 200px;
+}
+
 /* 导出结果 */
 .export-result {
   border-radius: 8px;
@@ -540,4 +785,134 @@
   .interval-setting input {
     width: 100%;
   }
+
+  .auto-open-setting {
+    margin-top: 12px;
+  }
+
+  .checkbox-label {
+    font-size: 13px;
+  }
+
+  .table-status {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .table-actions {
+    align-items: stretch;
+  }
+
+  .action-description {
+    text-align: left;
+    max-width: none;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    margin: 10px;
+  }
+
+  .access-instructions {
+    font-size: 13px;
+    max-height: 60vh;
+  }
+}
+
+/* 模态对话框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #F0EEED;
+  background-color: #F9F7F4;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2A2520;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6C757D;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+  background-color: #E9ECEF;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.access-instructions {
+  background-color: #F8F9FA;
+  border: 1px solid #E9ECEF;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2A2520;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #F0EEED;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #F9F7F4;
+}
+
+.modal-footer .btn {
+  min-width: 100px;
 }
