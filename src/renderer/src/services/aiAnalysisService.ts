@@ -119,6 +119,46 @@ class DeepSeekService implements AIAnalysisService {
   }
 }
 
+// Kimi服务 (Moonshot AI)
+class KimiService implements AIAnalysisService {
+  constructor(private config: AIConfig) {}
+
+  async analyzeTimeUsage(dayStats: DayStats): Promise<string> {
+    const prompt = generateAIAnalysisPrompt(dayStats)
+    
+    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: this.config.model || 'moonshot-v1-8k',
+        messages: [
+          {
+            role: 'system',
+            content: '你是一位专业的时间管理分析师，请用中文提供详细的时间使用分析报告。'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Kimi API错误: ${error.error?.message || '未知错误'}`)
+    }
+
+    const data = await response.json()
+    return data.choices[0].message.content
+  }
+}
+
 // 本地AI服务
 class LocalAIService implements AIAnalysisService {
   constructor(private config: AIConfig) {}
@@ -157,6 +197,8 @@ export const createAIService = (config: AIConfig): AIAnalysisService => {
       return new ClaudeService(config)
     case 'deepseek':
       return new DeepSeekService(config)
+    case 'kimi':
+      return new KimiService(config)
     case 'local':
       return new LocalAIService(config)
     default:

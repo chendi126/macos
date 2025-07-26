@@ -1,5 +1,5 @@
 export interface AIConfig {
-  provider: 'openai' | 'claude' | 'deepseek' | 'local'
+  provider: 'openai' | 'claude' | 'deepseek' | 'kimi' | 'local'
   apiKey: string
   baseUrl?: string
   model?: string

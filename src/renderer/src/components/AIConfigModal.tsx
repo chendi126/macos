@@ -81,6 +81,8 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ isOpen, onClose, o
         return 'claude-3-5-sonnet-20241022'
       case 'deepseek':
         return 'deepseek-chat'
+      case 'kimi':
+        return 'moonshot-v1-8k'
       case 'local':
         return 'llama2'
       default:
@@ -114,6 +116,14 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ isOpen, onClose, o
           needsBaseUrl: false,
           models: ['deepseek-chat', 'deepseek-reasoner']
         }
+      case 'kimi':
+        return {
+          name: 'Kimi',
+          description: '使用月之暗面Kimi的智能AI模型',
+          needsApiKey: true,
+          needsBaseUrl: false,
+          models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k']
+        }
       case 'local':
         return {
           name: '本地AI模型',
@@ -121,6 +131,14 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ isOpen, onClose, o
           needsApiKey: false,
           needsBaseUrl: true,
           models: ['llama2', 'mistral', 'codellama', 'qwen']
+        }
+      default:
+        return {
+          name: '未知提供商',
+          description: '',
+          needsApiKey: false,
+          needsBaseUrl: false,
+          models: []
         }
     }
   }
@@ -160,7 +178,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ isOpen, onClose, o
             <div className="form-group">
               <label>AI服务提供商</label>
               <div className="provider-options">
-                {(['openai', 'claude', 'deepseek', 'local'] as const).map(provider => (
+                {(['openai', 'claude', 'deepseek', 'kimi', 'local'] as const).map(provider => (
                   <motion.div
                     key={provider}
                     className={`provider-option ${config.provider === provider ? 'active' : ''}`}
