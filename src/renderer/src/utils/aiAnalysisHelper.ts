@@ -173,6 +173,7 @@ ${analysisData.categoryStats.slice(0, 4).map(cat =>
 
 1. **应用功能推测**: 根据应用名称和使用时长，推测用户可能的工作内容
    - VS Code/WebStorm/IntelliJ = 编程开发
+   - VCTime = 时间管理助手
    - Figma/Photoshop/Sketch = 设计工作  
    - Word/Excel/PowerPoint = 文档处理
    - Chrome/Firefox长时间使用 = 可能在查资料或开发调试

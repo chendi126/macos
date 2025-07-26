@@ -321,11 +321,11 @@
 
 .ai-config-modal {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
-  overflow: hidden;
+  overflow-x: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -378,10 +378,19 @@
   padding: 24px;
   max-height: 60vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .form-group {
   margin-bottom: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .form-group label {
@@ -392,6 +401,8 @@
   font-weight: 500;
   color: #2A2520;
   margin-bottom: 8px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .label-icon {
@@ -401,18 +412,23 @@
 .provider-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
 }
 
 .provider-option {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 16px;
   border: 2px solid #E0E0E0;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .provider-option:hover {
