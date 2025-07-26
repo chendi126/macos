@@ -20,15 +20,27 @@ import './BlacklistApps.css'
 interface BlacklistAppsProps {
   modeId: string
   apps: BlacklistApp[]
+  onAddApp?: (app: BlacklistApp) => void
+  onUpdateApp?: (appId: string, updates: Partial<BlacklistApp>) => void
+  onRemoveApp?: (appId: string) => void
 }
 
-export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
+export default function BlacklistApps({ 
+  modeId, 
+  apps, 
+  onAddApp, 
+  onUpdateApp, 
+  onRemoveApp 
+}: BlacklistAppsProps) {
   const {
     addBlacklistApp,
     updateBlacklistApp,
     removeBlacklistApp,
     getRunningProcesses
   } = useWorkMode()
+
+  // 判断是否使用缓存模式
+  const isCacheMode = !!(onAddApp && onUpdateApp && onRemoveApp)
 
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingApp, setEditingApp] = useState<BlacklistApp | null>(null)
@@ -78,19 +90,38 @@ export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
   const handleAddApp = async () => {
     if (!newApp.name.trim() || !newApp.processName.trim()) return
 
-    const success = await addBlacklistApp(modeId, {
-      name: newApp.name,
-      processName: newApp.processName,
-      enabled: newApp.enabled
-    })
-
-    if (success) {
+    if (isCacheMode && onAddApp) {
+      // 缓存模式：直接添加到本地状态
+      const newAppData: BlacklistApp = {
+        id: Date.now().toString(), // 临时ID
+        name: newApp.name,
+        processName: newApp.processName,
+        enabled: newApp.enabled
+      }
+      onAddApp(newAppData)
+      
       setShowAddDialog(false)
       setNewApp({
         name: '',
         processName: '',
         enabled: true
       })
+    } else {
+      // 原有模式：直接保存到后端
+      const success = await addBlacklistApp(modeId, {
+        name: newApp.name,
+        processName: newApp.processName,
+        enabled: newApp.enabled
+      })
+
+      if (success) {
+        setShowAddDialog(false)
+        setNewApp({
+          name: '',
+          processName: '',
+          enabled: true
+        })
+      }
     }
   }
 
@@ -98,12 +129,25 @@ export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
   const handleToggleApp = async (e: React.MouseEvent, app: BlacklistApp) => {
     e.preventDefault()
     e.stopPropagation()
-    await updateBlacklistApp(modeId, app.id, { enabled: !app.enabled })
+    
+    if (isCacheMode && onUpdateApp) {
+      // 缓存模式：更新本地状态
+      onUpdateApp(app.id, { enabled: !app.enabled })
+    } else {
+      // 原有模式：直接保存到后端
+      await updateBlacklistApp(modeId, app.id, { enabled: !app.enabled })
+    }
   }
 
   // 删除应用
   const handleDeleteApp = async (appId: string) => {
-    await removeBlacklistApp(modeId, appId)
+    if (isCacheMode && onRemoveApp) {
+      // 缓存模式：从本地状态删除
+      onRemoveApp(appId)
+    } else {
+      // 原有模式：直接从后端删除
+      await removeBlacklistApp(modeId, appId)
+    }
   }
 
   // 开始编辑应用
@@ -115,13 +159,23 @@ export default function BlacklistApps({ modeId, apps }: BlacklistAppsProps) {
   const handleSaveEdit = async () => {
     if (!editingApp) return
 
-    const success = await updateBlacklistApp(modeId, editingApp.id, {
-      name: editingApp.name,
-      processName: editingApp.processName
-    })
-
-    if (success) {
+    if (isCacheMode && onUpdateApp) {
+      // 缓存模式：更新本地状态
+      onUpdateApp(editingApp.id, {
+        name: editingApp.name,
+        processName: editingApp.processName
+      })
       setEditingApp(null)
+    } else {
+      // 原有模式：直接保存到后端
+      const success = await updateBlacklistApp(modeId, editingApp.id, {
+        name: editingApp.name,
+        processName: editingApp.processName
+      })
+
+      if (success) {
+        setEditingApp(null)
+      }
     }
   }
 

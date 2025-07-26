@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faChartLine,
@@ -6,11 +7,9 @@ import {
   faExclamationTriangle,
   faStar,
   faCalendarDays,
-  faShare,
-  faDownload,
-  faLightbulb,
   faCheck,
-  faClipboardList
+  faClipboardList,
+  faCog
 } from '@fortawesome/free-solid-svg-icons'
 import { DayStats, AppUsageData } from '../types/electron'
 import './TimeAnalysis.css'
@@ -25,16 +24,55 @@ interface StatsCardProps {
 
 function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
   return (
-    <div className="stats-card">
+    <motion.div 
+      className="stats-card"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      whileHover={{ 
+        y: -8,
+        scale: 1.02,
+        boxShadow: "0 20px 40px rgba(212, 165, 116, 0.15)",
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+    >
       <div className="stats-header">
-        <p className="stats-title">{title}</p>
-        <div className="stats-icon" style={{ backgroundColor: bgColor }}>
+        <motion.p 
+          className="stats-title"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+        >
+          {title}
+        </motion.p>
+        <motion.div 
+          className="stats-icon" 
+          style={{ backgroundColor: bgColor }}
+          initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          whileHover={{ rotate: 360, scale: 1.1 }}
+        >
           <FontAwesomeIcon icon={icon} />
-        </div>
+        </motion.div>
       </div>
-      <p className="stats-value">{value}</p>
-      <p className="stats-change">{change}</p>
-    </div>
+      <motion.p 
+        className="stats-value"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4 }}
+      >
+        {value}
+      </motion.p>
+      <motion.p 
+        className="stats-change"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+      >
+        {change}
+      </motion.p>
+    </motion.div>
   )
 }
 
@@ -43,7 +81,7 @@ interface ChartPlaceholderProps {
   data: any[]
 }
 
-function ChartPlaceholder({ type, data }: ChartPlaceholderProps) {
+function ChartPlaceholder({ type }: ChartPlaceholderProps) {
   if (type === 'pie') {
     return (
       <div className="chart-container">
@@ -166,7 +204,7 @@ export default function TimeAnalysis() {
   }
 
   // 计算效率统计
-  const getEfficiencyStats = (apps: { [key: string]: AppUsageData }) => {
+  const getEfficiencyStats = (apps: { [key: string]: AppUsageData }, workModeTime: number) => {
     const productiveCategories = ['开发工具', '工作效率', '设计与创意']
     const distractingCategories = ['娱乐', '通讯与社交']
     
@@ -183,15 +221,18 @@ export default function TimeAnalysis() {
       }
     })
 
+    // 将工作模式时间加入到高效时间计算中
+    const totalProductiveTime = productiveTime + workModeTime
     const neutralTime = totalTime - productiveTime - distractingTime
-    const efficiencyScore = totalTime > 0 ? Math.round((productiveTime / totalTime) * 100) : 0
+    const efficiencyScore = totalTime > 0 ? Math.round((totalProductiveTime / totalTime) * 100) : 0
 
     return {
       totalTime,
-      productiveTime,
+      productiveTime: totalProductiveTime, // 包含工作模式时间
       distractingTime,
       neutralTime,
-      efficiencyScore
+      efficiencyScore,
+      workModeTime // 单独返回工作模式时间
     }
   }
 
@@ -235,19 +276,39 @@ export default function TimeAnalysis() {
 
   // 使用AppTracker计算好的总时间，而不是重新计算
   const totalTime = analysisData ? analysisData.totalTime : 0
+  const workModeTime = analysisData ? analysisData.workModeTime : 0
   
   // 计算统计数据
-  const stats = analysisData ? getEfficiencyStats(analysisData.apps) : null
+  const stats = analysisData ? getEfficiencyStats(analysisData.apps, workModeTime) : null
   const topApps = analysisData ? getTopApps(analysisData.apps, totalTime) : []
 
   return (
-    <div className="time-analysis">
+    <motion.div 
+      className="time-analysis"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
       <div className="main-content">
-          {/* 日期选择和操作按钮 */}
-          <div className="content-header">
-            <div className="date-selector">
+          {/* 日期选择 */}
+          <motion.div 
+            className="content-header"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <motion.div 
+              className="date-selector"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <label htmlFor="date-input">选择日期：</label>
-              <div className="date-input-wrapper">
+              <motion.div 
+                className="date-input-wrapper"
+                whileHover={{ scale: 1.02 }}
+                whileFocus={{ scale: 1.02 }}
+              >
                 <input
                   id="date-input"
                   type="date"
@@ -256,177 +317,361 @@ export default function TimeAnalysis() {
                   className="date-input"
                 />
                 <FontAwesomeIcon icon={faCalendarDays} className="calendar-icon" />
-              </div>
-            </div>
-            <div className="action-buttons">
-              <button className="action-button">
-                <span>分享报告</span>
-                <FontAwesomeIcon icon={faShare} />
-              </button>
-              <button className="action-button">
-                <span>导出报告</span>
-                <FontAwesomeIcon icon={faDownload} />
-              </button>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           {/* 统计卡片 */}
-          {loading ? (
-            <div className="loading-state">
-              <div className="loading-spinner"></div>
-              <p className="loading-text">加载分析数据...</p>
-            </div>
-          ) : (
-            <div className="stats-grid">
-              <StatsCard
-                title="总使用时长"
-                value={formatDuration(totalTime)}
-                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
-                icon={faClock}
-                bgColor="#F5E8D3"
-              />
-              <StatsCard
-                title="高效时长"
-                value={stats ? formatDuration(stats.productiveTime) : '00:00:00'}
-                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
-                icon={faChartLine}
-                bgColor="#E5F0E0"
-              />
-              <StatsCard
-                title="分心时长"
-                value={stats ? formatDuration(stats.distractingTime) : '00:00:00'}
-                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
-                icon={faExclamationTriangle}
-                bgColor="#F7E5DE"
-              />
-              <StatsCard
-                title="效率得分"
-                value={stats ? `${stats.efficiencyScore}%` : '0%'}
-                change={selectedDate ? `${selectedDate} 数据` : '今日数据'}
-                icon={faStar}
-                bgColor="#F5E8D3"
-              />
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div 
+                className="loading-state"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div 
+                  className="loading-spinner"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.p 
+                  className="loading-text"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  加载分析数据...
+                </motion.p>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="stats-grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                {[
+                  {
+                    title: "总使用时长",
+                    value: formatDuration(totalTime),
+                    change: selectedDate ? `${selectedDate} 数据` : '今日数据',
+                    icon: faClock,
+                    bgColor: "#F5E8D3"
+                  },
+                  {
+                    title: "高效时长",
+                    value: stats ? formatDuration(stats.productiveTime) : '00:00:00',
+                    change: `包含工作模式 ${formatDuration(workModeTime)}`,
+                    icon: faChartLine,
+                    bgColor: "#E5F0E0"
+                  },
+                  {
+                    title: "分心时长",
+                    value: stats ? formatDuration(stats.distractingTime) : '00:00:00',
+                    change: selectedDate ? `${selectedDate} 数据` : '今日数据',
+                    icon: faExclamationTriangle,
+                    bgColor: "#F7E5DE"
+                  },
+                  {
+                    title: "效率得分",
+                    value: stats ? `${stats.efficiencyScore}%` : '0%',
+                    change: selectedDate ? `${selectedDate} 数据` : '今日数据',
+                    icon: faStar,
+                    bgColor: "#F5E8D3"
+                  }
+                ].map((card, index) => (
+                  <motion.div
+                    key={card.title}
+                    initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: 0.4 + index * 0.1,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <StatsCard {...card} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* 图表区域 */}
-          <div className="charts-grid">
+          <motion.div 
+            className="charts-grid"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
             {/* 时间使用分布 */}
-            <div className="chart-card">
-              <h2>时间使用分布</h2>
-              <ChartPlaceholder type="pie" data={[]} />
-            </div>
+            <motion.div 
+              className="chart-card"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+              whileHover={{ 
+                y: -5,
+                boxShadow: "0 15px 35px rgba(212, 165, 116, 0.15)"
+              }}
+            >
+              <motion.h2
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0, duration: 0.3 }}
+              >
+                时间使用分布
+              </motion.h2>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.1, duration: 0.4 }}
+              >
+                <ChartPlaceholder type="pie" data={[]} />
+              </motion.div>
+            </motion.div>
 
             {/* 热门应用排名 */}
-            <div className="chart-card">
-              <h2>热门应用排名</h2>
+            <motion.div 
+              className="chart-card"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 1.0 }}
+              whileHover={{ 
+                y: -5,
+                boxShadow: "0 15px 35px rgba(212, 165, 116, 0.15)"
+              }}
+            >
+              <motion.h2
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.3 }}
+              >
+                热门应用排名
+              </motion.h2>
               {topApps.length > 0 ? (
-                <div className="chart-container">
+                <motion.div 
+                  className="chart-container"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2, duration: 0.4 }}
+                >
                   <div className="bar-chart">
                     {topApps.slice(0, 5).map((app, index) => {
                       const maxHeight = 200
                       const height = topApps.length > 0 ? (app.duration / topApps[0].duration) * maxHeight : 0
                       return (
-                        <div key={app.name} className="bar-item">
-                          <div className="bar" style={{ height: `${height}px` }}>
+                        <motion.div 
+                          key={app.name} 
+                          className="bar-item"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ 
+                            delay: 1.3 + index * 0.1, 
+                            duration: 0.4 
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <motion.div 
+                            className="bar" 
+                            style={{ height: `${height}px` }}
+                            initial={{ height: 0 }}
+                            animate={{ height: `${height}px` }}
+                            transition={{ 
+                              delay: 1.4 + index * 0.1, 
+                              duration: 0.6,
+                              ease: "easeOut"
+                            }}
+                          >
                             <span className="bar-value">{formatDuration(app.duration)}</span>
-                          </div>
+                          </motion.div>
                           <span className="bar-label">{app.name}</span>
-                        </div>
+                        </motion.div>
                       )
                     })}
                   </div>
-                </div>
+                </motion.div>
               ) : (
-                <div className="no-data">
+                <motion.div 
+                  className="no-data"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2, duration: 0.3 }}
+                >
                   <p>暂无数据</p>
-                </div>
+                </motion.div>
               )}
-            </div>
-          </div>
-
-          {/* 使用趋势图 */}
-          <div className="trend-card">
-            <h2>使用趋势图</h2>
-            <ChartPlaceholder type="line" data={[]} />
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* 效率洞察 */}
-          <div className="insights-card">
-            <h2>效率洞察</h2>
-            <div className="insights-grid">
-              {/* 最高效率时段 */}
-              <div className="insight-item">
-                <div className="insight-header">
-                  <div className="insight-icon efficiency">
-                    <FontAwesomeIcon icon={faLightbulb} />
-                  </div>
-                  <h3>最高效率时段</h3>
-                </div>
-                <p className="insight-description">根据分析，您在以下时段工作效率最高：</p>
+          <motion.div 
+            className="insights-card"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
+            whileHover={{ 
+              y: -3,
+              boxShadow: "0 20px 40px rgba(212, 165, 116, 0.12)"
+            }}
+          >
+            <motion.h2
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.6, duration: 0.4 }}
+            >
+              效率洞察
+            </motion.h2>
+            <motion.div 
+              className="insights-grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.7, duration: 0.5 }}
+            >
+              {/* 工作模式效果 */}
+              <motion.div 
+                className="insight-item"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.8, duration: 0.5 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <motion.div 
+                  className="insight-header"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.9, duration: 0.3 }}
+                >
+                  <motion.div 
+                    className="insight-icon efficiency"
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <FontAwesomeIcon icon={faCog} />
+                  </motion.div>
+                  <h3>工作模式效果</h3>
+                </motion.div>
+                <p className="insight-description">工作模式帮助您保持专注：</p>
                 <div className="time-slots">
                   <div className="time-slot">
                     <div className="time-dot high"></div>
-                    <span className="time-label">上午 9:00 - 11:30</span>
-                    <span className="efficiency-score">高效指数: 92%</span>
+                    <span className="time-label">工作模式时长</span>
+                    <span className="efficiency-score">{formatDuration(workModeTime)}</span>
                   </div>
                   <div className="time-slot">
                     <div className="time-dot high"></div>
-                    <span className="time-label">下午 2:00 - 4:30</span>
-                    <span className="efficiency-score">高效指数: 87%</span>
+                    <span className="time-label">占总时长比例</span>
+                    <span className="efficiency-score">
+                      {totalTime > 0 ? Math.round((workModeTime / totalTime) * 100) : 0}%
+                    </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* 分心因素 */}
-              <div className="insight-item">
-                <div className="insight-header">
-                  <div className="insight-icon distraction">
+              <motion.div 
+                className="insight-item"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 2.0, duration: 0.5 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <motion.div 
+                  className="insight-header"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 2.1, duration: 0.3 }}
+                >
+                  <motion.div 
+                    className="insight-icon distraction"
+                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <FontAwesomeIcon icon={faExclamationTriangle} />
-                  </div>
+                  </motion.div>
                   <h3>分心因素</h3>
-                </div>
-                <p className="insight-description">以下应用是您最主要的分心来源：</p>
+                </motion.div>
+                <p className="insight-description">主要分心来源分析：</p>
                 <div className="distraction-sources">
-                  <div className="distraction-item">
-                    <div className="time-dot low"></div>
-                    <span className="source-label">社交媒体</span>
-                    <span className="time-spent">1h 15m</span>
-                  </div>
-                  <div className="distraction-item">
-                    <div className="time-dot low"></div>
-                    <span className="source-label">视频娱乐</span>
-                    <span className="time-spent">45m</span>
-                  </div>
+                  {topApps.filter(app => {
+                    const distractingCategories = ['娱乐', '通讯与社交']
+                    return distractingCategories.includes(app.category || '')
+                  }).slice(0, 2).map((app) => (
+                    <div key={app.name} className="distraction-item">
+                      <div className="time-dot low"></div>
+                      <span className="source-label">{app.name}</span>
+                      <span className="time-spent">{app.formattedDuration}</span>
+                    </div>
+                  ))}
+                  {topApps.filter(app => {
+                    const distractingCategories = ['娱乐', '通讯与社交']
+                    return distractingCategories.includes(app.category || '')
+                  }).length === 0 && (
+                    <div className="distraction-item">
+                      <div className="time-dot high"></div>
+                      <span className="source-label">无明显分心应用</span>
+                      <span className="time-spent">保持专注！</span>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </motion.div>
 
               {/* 提升效率建议 */}
-              <div className="insight-item full-width">
-                <div className="insight-header">
-                  <div className="insight-icon suggestions">
+              <motion.div 
+                className="insight-item full-width"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 2.2, duration: 0.5 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <motion.div 
+                  className="insight-header"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 2.3, duration: 0.3 }}
+                >
+                  <motion.div 
+                    className="insight-icon suggestions"
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
                     <FontAwesomeIcon icon={faClipboardList} />
-                  </div>
+                  </motion.div>
                   <h3>提升效率建议</h3>
-                </div>
+                </motion.div>
                 <ul className="suggestions-list">
-                  <li>
-                    <FontAwesomeIcon icon={faCheck} className="check-icon" />
-                    <span>尝试在上午9点至11点30分间安排重要任务，利用您的高效率时段。</span>
-                  </li>
-                  <li>
-                    <FontAwesomeIcon icon={faCheck} className="check-icon" />
-                    <span>考虑在社交媒体应用上设置每日使用限制，当前使用时间已超过建议值约35%。</span>
-                  </li>
-                  <li>
-                    <FontAwesomeIcon icon={faCheck} className="check-icon" />
-                    <span>周末的使用时间显著下降，这是健康的工作与生活平衡表现，建议继续保持。</span>
-                  </li>
+                  {[
+                    workModeTime > 0 
+                      ? `工作模式使用良好，建议继续保持专注工作习惯。`
+                      : `建议启用工作模式来提高专注度和工作效率。`,
+                    stats && stats.efficiencyScore >= 70
+                      ? `当前效率得分为 ${stats.efficiencyScore}%，表现优秀！`
+                      : `当前效率得分为 ${stats?.efficiencyScore || 0}%，可以通过减少分心应用使用来提升。`,
+                    `定期查看时间分析报告，了解自己的使用习惯，持续优化工作效率。`
+                  ].map((suggestion, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 2.4 + index * 0.1, duration: 0.4 }}
+                      whileHover={{ x: 5 }}
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 2.5 + index * 0.1, duration: 0.3 }}
+                      >
+                        <FontAwesomeIcon icon={faCheck} className="check-icon" />
+                      </motion.div>
+                      <span>{suggestion}</span>
+                    </motion.li>
+                  ))}
                 </ul>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }

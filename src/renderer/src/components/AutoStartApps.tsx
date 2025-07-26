@@ -19,15 +19,27 @@ import './AutoStartApps.css'
 interface AutoStartAppsProps {
   modeId: string
   apps: AutoStartApp[]
+  onAddApp?: (app: AutoStartApp) => void
+  onUpdateApp?: (appId: string, updates: Partial<AutoStartApp>) => void
+  onRemoveApp?: (appId: string) => void
 }
 
-export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
+export default function AutoStartApps({ 
+  modeId, 
+  apps, 
+  onAddApp, 
+  onUpdateApp, 
+  onRemoveApp 
+}: AutoStartAppsProps) {
   const {
     selectExecutableFile,
     addAutoStartApp,
     updateAutoStartApp,
     removeAutoStartApp
   } = useWorkMode()
+
+  // 判断是否使用缓存模式
+  const isCacheMode = !!(onAddApp && onUpdateApp && onRemoveApp)
 
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingApp, setEditingApp] = useState<AutoStartApp | null>(null)
@@ -71,15 +83,18 @@ export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
   const handleAddApp = async () => {
     if (!newApp.name.trim() || !newApp.path.trim()) return
 
-    const success = await addAutoStartApp(modeId, {
-      name: newApp.name,
-      path: newApp.path,
-      arguments: newApp.arguments,
-      workingDirectory: newApp.workingDirectory,
-      enabled: newApp.enabled
-    })
-
-    if (success) {
+    if (isCacheMode && onAddApp) {
+      // 缓存模式：直接添加到本地状态
+      const newAppData: AutoStartApp = {
+        id: Date.now().toString(), // 临时ID
+        name: newApp.name,
+        path: newApp.path,
+        arguments: newApp.arguments,
+        workingDirectory: newApp.workingDirectory,
+        enabled: newApp.enabled
+      }
+      onAddApp(newAppData)
+      
       setShowAddDialog(false)
       setNewApp({
         name: '',
@@ -88,17 +103,49 @@ export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
         workingDirectory: '',
         enabled: true
       })
+    } else {
+      // 原有模式：直接保存到后端
+      const success = await addAutoStartApp(modeId, {
+        name: newApp.name,
+        path: newApp.path,
+        arguments: newApp.arguments,
+        workingDirectory: newApp.workingDirectory,
+        enabled: newApp.enabled
+      })
+
+      if (success) {
+        setShowAddDialog(false)
+        setNewApp({
+          name: '',
+          path: '',
+          arguments: '',
+          workingDirectory: '',
+          enabled: true
+        })
+      }
     }
   }
 
   // 切换应用启用状态
   const handleToggleApp = async (app: AutoStartApp) => {
-    await updateAutoStartApp(modeId, app.id, { enabled: !app.enabled })
+    if (isCacheMode && onUpdateApp) {
+      // 缓存模式：更新本地状态
+      onUpdateApp(app.id, { enabled: !app.enabled })
+    } else {
+      // 原有模式：直接保存到后端
+      await updateAutoStartApp(modeId, app.id, { enabled: !app.enabled })
+    }
   }
 
   // 删除应用
   const handleDeleteApp = async (appId: string) => {
-    await removeAutoStartApp(modeId, appId)
+    if (isCacheMode && onRemoveApp) {
+      // 缓存模式：从本地状态删除
+      onRemoveApp(appId)
+    } else {
+      // 原有模式：直接从后端删除
+      await removeAutoStartApp(modeId, appId)
+    }
   }
 
   // 开始编辑应用
@@ -110,14 +157,25 @@ export default function AutoStartApps({ modeId, apps }: AutoStartAppsProps) {
   const handleSaveEdit = async () => {
     if (!editingApp) return
 
-    const success = await updateAutoStartApp(modeId, editingApp.id, {
-      name: editingApp.name,
-      arguments: editingApp.arguments,
-      workingDirectory: editingApp.workingDirectory
-    })
-
-    if (success) {
+    if (isCacheMode && onUpdateApp) {
+      // 缓存模式：更新本地状态
+      onUpdateApp(editingApp.id, {
+        name: editingApp.name,
+        arguments: editingApp.arguments,
+        workingDirectory: editingApp.workingDirectory
+      })
       setEditingApp(null)
+    } else {
+      // 原有模式：直接保存到后端
+      const success = await updateAutoStartApp(modeId, editingApp.id, {
+        name: editingApp.name,
+        arguments: editingApp.arguments,
+        workingDirectory: editingApp.workingDirectory
+      })
+
+      if (success) {
+        setEditingApp(null)
+      }
     }
   }
 

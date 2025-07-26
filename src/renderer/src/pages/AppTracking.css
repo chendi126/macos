@@ -1,10 +1,10 @@
 .app-tracking {
   height: 100%;
-  background-color: #FDFCFA;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  overflow-x: hidden; /* 确保隐藏横向滚动条 */
+  overflow-x: hidden;
+  /* 确保隐藏横向滚动条 */
 }
 
 .app-tracking .main-content {
@@ -134,9 +134,11 @@
   0% {
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
   }
@@ -242,8 +244,13 @@
 }
 
 @keyframes ring-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -280,8 +287,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 使用图表卡片 */
@@ -938,11 +950,11 @@
     width: 240px;
     min-width: 240px;
   }
-  
+
   .session-details {
     padding: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
@@ -952,7 +964,7 @@
   .tracking-content {
     flex-direction: column;
   }
-  
+
   .session-sidebar {
     width: 100%;
     min-width: auto;
@@ -960,25 +972,25 @@
     border-right: none;
     border-bottom: 1px solid #F0EEED;
   }
-  
+
   .header-stats {
     display: none;
   }
-  
+
   .details-header {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .session-actions {
     align-self: flex-end;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-  
+
   .apps-analysis,
   .timeline-section {
     padding: 16px;
@@ -989,11 +1001,11 @@
   .tracking-header {
     padding: 0 16px;
   }
-  
+
   .session-details {
     padding: 12px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }

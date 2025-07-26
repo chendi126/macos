@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { AppTracker } from './services/AppTracker'
 import { WorkModeManager } from './services/WorkModeManager'
@@ -10,6 +10,9 @@ let workModeManager: WorkModeManager
 let dataExportManager: DataExportManager
 
 function createWindow() {
+  // 完全禁用菜单栏
+  Menu.setApplicationMenu(null)
+  
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -17,8 +20,7 @@ function createWindow() {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false
-    },
-    autoHideMenuBar: true // 隐藏菜单栏
+    }
   })
 
   // 开发环境加载开发服务器，生产环境加载构建文件

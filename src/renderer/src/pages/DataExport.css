@@ -1,6 +1,5 @@
 .data-export {
   height: 100%;
-  background-color: #FDFCFA;
   display: flex;
   flex-direction: column;
   overflow: hidden;

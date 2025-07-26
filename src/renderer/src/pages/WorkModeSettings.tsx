@@ -15,6 +15,7 @@ import {
 import { useWorkMode } from '../contexts/WorkModeContext'
 import AutoStartApps from '../components/AutoStartApps'
 import BlacklistApps from '../components/BlacklistApps'
+import { AutoStartApp, BlacklistApp } from '../types/electron'
 import './WorkModeSettings.css'
 import { faDesktop } from '@fortawesome/free-solid-svg-icons/faDesktop'
 
@@ -40,21 +41,15 @@ export default function WorkModeSettings() {
   const [isToggling, setIsToggling] = useState(false)
   const [newModeName, setNewModeName] = useState('')
   const [newModeDescription, setNewModeDescription] = useState('')
+  
+  // 缓存的应用数据，用于暂存修改
+  const [cachedAutoStartApps, setCachedAutoStartApps] = useState<AutoStartApp[]>([])
+  const [cachedBlacklistApps, setCachedBlacklistApps] = useState<BlacklistApp[]>([])
+  const [hasAppChanges, setHasAppChanges] = useState(false)
 
   const selectedMode = getSelectedMode()
 
-  // 鼠标跟随背景效果
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth) * 100
-      const y = (e.clientY / window.innerHeight) * 100
-      document.documentElement.style.setProperty('--mouse-x', `${x}%`)
-      document.documentElement.style.setProperty('--mouse-y', `${y}%`)
-    }
 
-    document.addEventListener('mousemove', handleMouseMove)
-    return () => document.removeEventListener('mousemove', handleMouseMove)
-  }, [])
 
   // 当选中的模式改变时，更新表单数据
   useEffect(() => {
@@ -64,6 +59,11 @@ export default function WorkModeSettings() {
       setAutoDesktop(selectedMode.autoCreateDesktop)
       setEnableBlacklist(selectedMode.enableBlacklist || false)
       setIsEditing(false)
+      
+      // 重置缓存的应用数据
+      setCachedAutoStartApps(selectedMode.autoStartApps || [])
+      setCachedBlacklistApps(selectedMode.blacklistApps || [])
+      setHasAppChanges(false)
     }
   }, [selectedMode])
 
@@ -75,11 +75,14 @@ export default function WorkModeSettings() {
       name: modeName,
       description: modeDescription,
       autoCreateDesktop: autoDesktop,
-      enableBlacklist: enableBlacklist
+      enableBlacklist: enableBlacklist,
+      autoStartApps: cachedAutoStartApps,
+      blacklistApps: cachedBlacklistApps
     })
 
     if (success) {
       setIsEditing(false)
+      setHasAppChanges(false)
     }
   }
 
@@ -130,10 +133,65 @@ export default function WorkModeSettings() {
     setShowDeleteDialog(false)
   }
 
+  // 缓存应用管理函数
+  const handleAddCachedAutoStartApp = (app: AutoStartApp) => {
+    setCachedAutoStartApps(prev => [...prev, app])
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  const handleUpdateCachedAutoStartApp = (appId: string, updates: Partial<AutoStartApp>) => {
+    setCachedAutoStartApps(prev => 
+      prev.map(app => app.id === appId ? { ...app, ...updates } : app)
+    )
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  const handleRemoveCachedAutoStartApp = (appId: string) => {
+    setCachedAutoStartApps(prev => prev.filter(app => app.id !== appId))
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  const handleAddCachedBlacklistApp = (app: BlacklistApp) => {
+    setCachedBlacklistApps(prev => [...prev, app])
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  const handleUpdateCachedBlacklistApp = (appId: string, updates: Partial<BlacklistApp>) => {
+    setCachedBlacklistApps(prev => 
+      prev.map(app => app.id === appId ? { ...app, ...updates } : app)
+    )
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  const handleRemoveCachedBlacklistApp = (appId: string) => {
+    setCachedBlacklistApps(prev => prev.filter(app => app.id !== appId))
+    setHasAppChanges(true)
+    setIsEditing(true)
+  }
+
+  // 重置所有更改
+  const handleResetChanges = () => {
+    if (selectedMode) {
+      setModeName(selectedMode.name)
+      setModeDescription(selectedMode.description)
+      setAutoDesktop(selectedMode.autoCreateDesktop)
+      setEnableBlacklist(selectedMode.enableBlacklist || false)
+      setCachedAutoStartApps(selectedMode.autoStartApps || [])
+      setCachedBlacklistApps(selectedMode.blacklistApps || [])
+      setIsEditing(false)
+      setHasAppChanges(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="work-mode-settings">
-        <div className="mouse-follow-bg" />
+
         <motion.div 
           className="loading-state"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -207,8 +265,7 @@ export default function WorkModeSettings() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      {/* 鼠标跟随背景 */}
-      <div className="mouse-follow-bg" />
+
 
       {/* 静态背景装饰 */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1 }}>
@@ -488,7 +545,10 @@ export default function WorkModeSettings() {
                 </p>
                 <AutoStartApps 
                   modeId={selectedMode.id} 
-                  apps={selectedMode.autoStartApps || []} 
+                  apps={cachedAutoStartApps}
+                  onAddApp={handleAddCachedAutoStartApp}
+                  onUpdateApp={handleUpdateCachedAutoStartApp}
+                  onRemoveApp={handleRemoveCachedAutoStartApp}
                 />
               </motion.div>
 
@@ -542,7 +602,10 @@ export default function WorkModeSettings() {
                     >
                       <BlacklistApps 
                         modeId={selectedMode.id} 
-                        apps={selectedMode.blacklistApps || []} 
+                        apps={cachedBlacklistApps}
+                        onAddApp={handleAddCachedBlacklistApp}
+                        onUpdateApp={handleUpdateCachedBlacklistApp}
+                        onRemoveApp={handleRemoveCachedBlacklistApp}
                       />
                     </motion.div>
                   )}
@@ -618,40 +681,59 @@ export default function WorkModeSettings() {
                   </motion.div>
                   <span>删除模式</span>
                 </motion.button>
+                
+                {(isEditing || hasAppChanges) && (
+                  <motion.button
+                    className="reset-button"
+                    onClick={handleResetChanges}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 8px 25px rgba(156, 163, 175, 0.3)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                    <span>重置更改</span>
+                  </motion.button>
+                )}
+                
                 <motion.button
                   className="save-button"
                   onClick={handleSaveMode}
-                  disabled={!isEditing}
+                  disabled={!isEditing && !hasAppChanges}
                   whileHover={{ 
-                    scale: isEditing ? 1.05 : 1,
-                    boxShadow: isEditing ? "0 8px 25px rgba(212, 165, 116, 0.3)" : "none"
+                    scale: (isEditing || hasAppChanges) ? 1.05 : 1,
+                    boxShadow: (isEditing || hasAppChanges) ? "0 8px 25px rgba(212, 165, 116, 0.3)" : "none"
                   }}
-                  whileTap={{ scale: isEditing ? 0.95 : 1 }}
+                  whileTap={{ scale: (isEditing || hasAppChanges) ? 0.95 : 1 }}
                   animate={{
-                    opacity: isEditing ? 1 : 0.5,
-                    boxShadow: isEditing 
+                    opacity: (isEditing || hasAppChanges) ? 1 : 0.5,
+                    boxShadow: (isEditing || hasAppChanges) 
                       ? ["0 0 0 0 rgba(212, 165, 116, 0.4)", "0 0 0 4px rgba(212, 165, 116, 0)", "0 0 0 0 rgba(212, 165, 116, 0)"]
                       : "none"
                   }}
                   transition={{
                     boxShadow: {
-                      duration: isEditing ? 2 : 0.3,
-                      repeat: isEditing ? Infinity : 0,
+                      duration: (isEditing || hasAppChanges) ? 2 : 0.3,
+                      repeat: (isEditing || hasAppChanges) ? Infinity : 0,
                       ease: "easeInOut"
                     }
                   }}
                 >
                   <motion.div
-                    animate={{ rotate: isEditing ? [0, 360] : 0 }}
+                    animate={{ rotate: (isEditing || hasAppChanges) ? [0, 360] : 0 }}
                     transition={{ 
-                      duration: isEditing ? 2 : 0.3,
-                      repeat: isEditing ? Infinity : 0,
+                      duration: (isEditing || hasAppChanges) ? 2 : 0.3,
+                      repeat: (isEditing || hasAppChanges) ? Infinity : 0,
                       ease: "linear"
                     }}
                   >
                     <FontAwesomeIcon icon={faSave} />
                   </motion.div>
-                  <span>保存更改</span>
+                  <span>保存更改{hasAppChanges ? ' (包含应用更改)' : ''}</span>
                 </motion.button>
               </motion.div>
             </motion.div>

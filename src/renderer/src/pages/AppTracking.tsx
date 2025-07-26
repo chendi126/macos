@@ -39,21 +39,17 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, scale: 0.8, rotateX: 20 }}
-      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.8,
+        duration: 0.2,
         delay,
-        type: "spring",
-        stiffness: 120,
-        damping: 20
+        ease: "easeOut"
       }}
       whileHover={{
-        y: -12,
-        scale: 1.05,
-        rotateX: -5,
-        rotateY: 5,
-        transition: { duration: 0.3, type: "spring", stiffness: 300 }
+        y: -5,
+        scale: 1.02,
+        transition: { duration: 0.2, ease: "easeOut" }
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -118,12 +114,44 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
         <div className="w-full h-full bg-transparent rounded-[19px]" />
       </motion.div>
 
-      {/* 增强粒子效果 */}
+      {/* 载入时的粒子效果 */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={`load-${i}`}
+            className="absolute rounded-full"
+            style={{
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              background: `radial-gradient(circle, #D4A574, transparent)`,
+              left: `${Math.random() * 100}%`,
+              top: `${80 + Math.random() * 20}%`, // 从底部开始
+            }}
+            initial={{
+              opacity: 0,
+              y: 40,
+              scale: 0
+            }}
+            animate={{
+              opacity: [0, 0.6, 0],
+              y: -60,
+              scale: [0, 1, 0]
+            }}
+            transition={{
+              duration: 0.8,
+              delay: delay + i * 0.05,
+              ease: "easeOut"
+            }}
+          />
+        ))}
+      </div>
+
+      {/* hover时的粒子效果 */}
       {isHovered && (
         <div className="absolute inset-0 pointer-events-none">
           {[...Array(12)].map((_, i) => (
             <motion.div
-              key={i}
+              key={`hover-${i}`}
               className="absolute rounded-full"
               style={{
                 width: `${Math.random() * 4 + 2}px`,
@@ -135,8 +163,8 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
               animate={{
                 opacity: [0, 1, 0],
                 scale: [0, 1.5, 0],
-                y: [0, -30, -60],
-                x: [0, Math.random() * 20 - 10, Math.random() * 40 - 20],
+                x: [0, Math.random() * 60 - 30, Math.random() * 120 - 60],
+                rotate: [0, 360],
               }}
               transition={{
                 duration: 2 + Math.random(),
@@ -755,12 +783,7 @@ export default function AppTracking() {
         </div>
 
         {/* 统计卡片 */}
-        <motion.div
-          className="stats-grid"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <div className="stats-grid">
           <StatsCard
             title="总使用时长"
             value={formatDuration(realTimeTotalTime)}
@@ -789,7 +812,7 @@ export default function AppTracking() {
             bgColor="#F5E8D3"
             delay={0.4}
           />
-        </motion.div>
+        </div>
 
         {/* 当前活动应用 */}
         <CurrentAppCard />
