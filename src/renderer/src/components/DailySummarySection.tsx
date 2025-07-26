@@ -98,14 +98,14 @@ export const DailySummarySection: React.FC<DailySummarySectionProps> = ({ daySta
         className="daily-summary-section"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.2, duration: 0.5 }}
+        transition={{ delay: 1.1, duration: 0.25 }}
         whileHover={{ scale: 1.01 }}
       >
         <motion.div
           className="section-header"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.3, duration: 0.3 }}
+          transition={{ delay: 1.15, duration: 0.15 }}
         >
           <motion.div
             className="section-icon"
@@ -127,7 +127,7 @@ export const DailySummarySection: React.FC<DailySummarySectionProps> = ({ daySta
             className="summary-content"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 0.4 }}
+            transition={{ delay: 1.2, duration: 0.2 }}
           >
             <div className="summary-meta">
               <span className="summary-time">
@@ -158,7 +158,7 @@ export const DailySummarySection: React.FC<DailySummarySectionProps> = ({ daySta
             className="summary-actions"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 0.4 }}
+            transition={{ delay: 1.2, duration: 0.2 }}
           >
             <div className="action-description">
               <p>使用AI分析您的时间使用数据，生成个性化的每日总结和建议</p>
@@ -222,7 +222,7 @@ export const DailySummarySection: React.FC<DailySummarySectionProps> = ({ daySta
                 className="config-hint"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2.5, duration: 0.3 }}
+                transition={{ delay: 1.25, duration: 0.15 }}
               >
                 <FontAwesomeIcon icon={faCheck} />
                 首次使用需要配置AI服务（支持OpenAI、Claude或本地模型）

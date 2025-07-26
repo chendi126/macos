@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import { join } from 'path'
 import { AppTracker } from './services/AppTracker'
 import { WorkModeManager } from './services/WorkModeManager'
@@ -8,14 +8,95 @@ let mainWindow: BrowserWindow
 let appTracker: AppTracker
 let workModeManager: WorkModeManager
 let dataExportManager: DataExportManager
+let tray: Tray | null = null
+let isQuiting = false
+
+function createTray() {
+  const { nativeImage } = require('electron')
+  
+  // 尝试使用项目中的 PNG 图标文件
+  let icon: Electron.NativeImage
+  
+  try {
+    const iconPath = process.env.NODE_ENV === 'development' 
+      ? join(process.cwd(), 'resources', 'icon.png')
+      : join(__dirname, 'vctime-icon.png')
+    const tempIcon = nativeImage.createFromPath(iconPath)
+    
+    // 如果图标太大，调整大小为适合托盘的尺寸
+    if (tempIcon && !tempIcon.isEmpty()) {
+      icon = tempIcon.resize({ width: 16, height: 16 })
+    } else {
+      // 使用空图标，系统会提供默认图标
+      icon = nativeImage.createEmpty()
+    }
+  } catch (error) {
+    console.log('未找到图标文件，使用默认图标')
+    // 使用空图标，系统会提供默认图标
+    icon = nativeImage.createEmpty()
+  }
+  
+  tray = new Tray(icon)
+  
+  // 设置托盘提示文本
+  tray.setToolTip('DesktopAide - 桌面助手')
+  
+  // 创建托盘菜单
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '显示主窗口',
+      click: () => {
+        if (mainWindow) {
+          if (mainWindow.isMinimized()) {
+            mainWindow.restore()
+          }
+          mainWindow.show()
+          mainWindow.focus()
+        }
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
+      label: '退出应用',
+      click: () => {
+        isQuiting = true
+        if (appTracker) {
+          appTracker.stop()
+        }
+        app.quit()
+      }
+    }
+  ])
+  
+  tray.setContextMenu(contextMenu)
+  
+  // 双击托盘图标显示窗口
+  tray.on('double-click', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore()
+      }
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
+}
 
 function createWindow() {
   // 完全禁用菜单栏
   Menu.setApplicationMenu(null)
   
+  const iconPath = process.env.NODE_ENV === 'development' 
+    ? join(process.cwd(), 'resources', 'icon.png')
+    : join(__dirname, 'vctime-icon.png')
+    
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'VCTime - 桌面时间管理助手',
+    icon: iconPath,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -29,6 +110,26 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // 处理窗口关闭事件 - 最小化到托盘而不是退出
+  mainWindow.on('close', (event) => {
+    if (!isQuiting) {
+      event.preventDefault()
+      mainWindow.hide()
+      
+      // 可选：显示托盘通知
+      if (tray) {
+        tray.displayBalloon({
+          iconType: 'info',
+          title: 'DesktopAide',
+          content: '应用已最小化到系统托盘，双击托盘图标可重新打开窗口'
+        })
+      }
+    }
+  })
+
+  // 创建系统托盘
+  createTray()
 
   // 初始化应用追踪器
   appTracker = new AppTracker(mainWindow)
@@ -203,22 +304,37 @@ ipcMain.handle('export-app-usage-summary', async (event, date?: string) => {
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
-  if (appTracker) {
-    appTracker.stop()
-  }
-  if (process.platform !== 'darwin') {
+  // 在 Windows 和 Linux 上，当所有窗口关闭时不退出应用
+  // 应用会继续在系统托盘中运行
+  // 在 macOS 上保持默认行为
+  if (process.platform === 'darwin') {
+    if (appTracker) {
+      appTracker.stop()
+    }
     app.quit()
   }
+  // 在其他平台上，应用继续在托盘中运行
 })
 
 app.on('activate', () => {
+  // 在 macOS 上，当点击 dock 图标且没有其他窗口打开时，重新创建窗口
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
+  } else if (mainWindow) {
+    // 如果窗口存在但被隐藏，显示它
+    mainWindow.show()
+    mainWindow.focus()
   }
 })
 
 app.on('before-quit', () => {
+  // 设置正在退出标志，允许窗口真正关闭
+  isQuiting = true
   if (appTracker) {
     appTracker.stop()
+  }
+  // 销毁托盘图标
+  if (tray) {
+    tray.destroy()
   }
 })

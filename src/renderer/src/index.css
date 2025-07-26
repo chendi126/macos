@@ -304,3 +304,154 @@ body {
   box-shadow: 0 12px 40px rgba(42, 37, 32, 0.4), 0 6px 20px rgba(42, 37, 32, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-2px) scale(1.05);
 }
+
+/* 全局滚动条样式 */
+/* Webkit浏览器滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(240, 238, 237, 0.3);
+  border-radius: 10px;
+  margin: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.6) 0%, 
+    rgba(212, 165, 116, 0.8) 50%, 
+    rgba(212, 165, 116, 0.6) 100%
+  );
+  border-radius: 10px;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow: 0 2px 4px rgba(212, 165, 116, 0.1);
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.8) 0%, 
+    rgba(212, 165, 116, 1) 50%, 
+    rgba(212, 165, 116, 0.8) 100%
+  );
+  box-shadow: 0 4px 8px rgba(212, 165, 116, 0.2);
+  transform: scale(1.1);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.9) 0%, 
+    rgba(180, 140, 90, 1) 50%, 
+    rgba(212, 165, 116, 0.9) 100%
+  );
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(240, 238, 237, 0.3);
+}
+
+/* 细滚动条变体（用于小容器） */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.5) 0%, 
+    rgba(212, 165, 116, 0.7) 100%
+  );
+  border-radius: 8px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, 
+    rgba(212, 165, 116, 0.7) 0%, 
+    rgba(212, 165, 116, 0.9) 100%
+  );
+}
+
+/* 深色主题滚动条 */
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: rgba(42, 37, 32, 0.2);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, 
+    rgba(139, 128, 115, 0.6) 0%, 
+    rgba(139, 128, 115, 0.8) 50%, 
+    rgba(139, 128, 115, 0.6) 100%
+  );
+  border: 1px solid rgba(139, 128, 115, 0.3);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, 
+    rgba(139, 128, 115, 0.8) 0%, 
+    rgba(139, 128, 115, 1) 50%, 
+    rgba(139, 128, 115, 0.8) 100%
+  );
+}
+
+/* Firefox滚动条样式 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 165, 116, 0.7) rgba(240, 238, 237, 0.3);
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* 自定义滚动条动画 */
+@keyframes scrollbar-appear {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  animation: scrollbar-appear 0.3s ease-out;
+}
+
+/* 滚动条在不同状态下的样式 */
+.scrollbar-hover-only::-webkit-scrollbar-thumb {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scrollbar-hover-only:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* 毛玻璃效果滚动条 */
+.glass-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.6);
+  backdrop-filter: blur(15px);
+}

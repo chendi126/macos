@@ -95,7 +95,7 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
         animate={{
           transform: isHovered ? 'translateX(120%)' : 'translateX(-120%)'
         }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       />
 
       {/* 边框光效 */}
@@ -138,8 +138,8 @@ function StatsCard({ title, value, change, icon, bgColor, delay = 0 }: StatsCard
               scale: [0, 1, 0]
             }}
             transition={{
-              duration: 0.8,
-              delay: delay + i * 0.05,
+              duration: 0.3,
+              delay: delay + i * 0.02,
               ease: "easeOut"
             }}
           />
@@ -303,11 +303,11 @@ function CurrentAppCard() {
       initial={{ opacity: 0, x: -80, scale: 0.9, rotateY: -15 }}
       animate={{ opacity: 1, x: 0, scale: 1, rotateY: 0 }}
       transition={{
-        duration: 0.8,
+        duration: 0.3,
         type: "spring",
-        stiffness: 120,
+        stiffness: 150,
         damping: 25,
-        delay: 0.6
+        delay: 0.3
       }}
       whileHover={{
         y: -10,
@@ -424,7 +424,7 @@ function CurrentAppCard() {
         className="current-app-info relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7, duration: 0.5 }}
+        transition={{ delay: 0.35, duration: 0.25 }}
       >
         <motion.div
           className="app-icon"
@@ -615,7 +615,7 @@ export default function AppTracking() {
             className="loading-state"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
             {/* 现代化加载动画 */}
             <motion.div className="modern-loading-container">
@@ -648,7 +648,7 @@ export default function AppTracking() {
               className="loading-text"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+              transition={{ delay: 0.15, duration: 0.25 }}
             >
               正在加载应用使用数据...
             </motion.p>
@@ -822,7 +822,7 @@ export default function AppTracking() {
           className="modern-chart-container"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
         >
           <motion.h2
             style={{
@@ -852,8 +852,8 @@ export default function AppTracking() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 0.5,
-                    delay: index * 0.15,
+                    duration: 0.2,
+                    delay: index * 0.05,
                     ease: [0.25, 0.46, 0.45, 0.94]
                   }}
                 >
@@ -890,8 +890,8 @@ export default function AppTracking() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
-                        delay: index * 0.15 + 1.2,
-                        duration: 0.4,
+                        delay: index * 0.05 + 0.4,
+                        duration: 0.2,
                         ease: "easeOut"
                       }}
                     >
@@ -904,8 +904,8 @@ export default function AppTracking() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      delay: index * 0.15 + 0.8,
-                      duration: 0.4,
+                      delay: index * 0.05 + 0.3,
+                      duration: 0.2,
                       ease: "easeOut"
                     }}
                   >
@@ -934,10 +934,10 @@ export default function AppTracking() {
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
-                  duration: 0.5,
-                  delay: index * 0.05 + 1.5,
+                  duration: 0.2,
+                  delay: index * 0.02 + 0.5,
                   type: "spring",
-                  stiffness: 80
+                  stiffness: 120
                 }}
               >
                 <div className="modern-app-info">
@@ -969,7 +969,7 @@ export default function AppTracking() {
           className="timeline-card glass-card"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
           <h2>活动时间轴</h2>
           <div className="timeline-header">
@@ -1002,10 +1002,10 @@ export default function AppTracking() {
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{
-                    duration: 0.4,
-                    delay: index * 0.1,
+                    duration: 0.2,
+                    delay: index * 0.03,
                     type: "spring",
-                    stiffness: 60
+                    stiffness: 80
                   }}
                   whileHover={{
                     scale: 1.02,
@@ -1019,7 +1019,7 @@ export default function AppTracking() {
                     whileHover={{
                       scale: 1.1,
                       rotate: 360,
-                      transition: { duration: 0.5 }
+                      transition: { duration: 0.2 }
                     }}
                   >
                     <FontAwesomeIcon icon={getAppIcon(item.app, appData?.category)} />
@@ -1038,8 +1038,8 @@ export default function AppTracking() {
                         initial={{ scaleX: 0, opacity: 0 }}
                         animate={{ scaleX: 1, opacity: 1 }}
                         transition={{
-                          duration: 0.6,
-                          delay: index * 0.1 + segIndex * 0.1,
+                          duration: 0.3,
+                          delay: index * 0.03 + segIndex * 0.03,
                           ease: "easeOut"
                         }}
                         whileHover={{

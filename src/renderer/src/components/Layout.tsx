@@ -44,8 +44,8 @@ export default function Layout() {
         }
       default:
         return {
-          title: 'Focus Manager',
-          subtitle: '专注管理工具',
+          title: 'VCTime',
+          subtitle: '桌面时间管理助手',
           icon: faHome
         }
     }

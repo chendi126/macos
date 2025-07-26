@@ -40,7 +40,7 @@ function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
       className="stats-card"
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       whileHover={{
         y: -8,
         scale: 1.02,
@@ -53,7 +53,7 @@ function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
           className="stats-title"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
+          transition={{ delay: 0.05, duration: 0.15 }}
         >
           {title}
         </motion.p>
@@ -62,7 +62,7 @@ function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
           style={{ backgroundColor: bgColor }}
           initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
+          transition={{ delay: 0.1, duration: 0.2 }}
           whileHover={{ rotate: 360, scale: 1.1 }}
         >
           <FontAwesomeIcon icon={icon} />
@@ -72,7 +72,7 @@ function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
         className="stats-value"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.4 }}
+        transition={{ delay: 0.15, duration: 0.2 }}
       >
         {value}
       </motion.p>
@@ -80,7 +80,7 @@ function StatsCard({ title, value, change, icon, bgColor }: StatsCardProps) {
         className="stats-change"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.4 }}
+        transition={{ delay: 0.2, duration: 0.2 }}
       >
         {change}
       </motion.p>
@@ -340,7 +340,7 @@ export default function TimeAnalysis() {
       className="time-analysis"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.3 }}
     >
       <div className="main-content">
         {/* 日期选择 */}
@@ -348,13 +348,13 @@ export default function TimeAnalysis() {
           className="content-header"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.2, delay: 0.05 }}
         >
           <motion.div
             className="date-selector"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
           >
             <label htmlFor="date-input">选择日期：</label>
             <motion.div
@@ -402,7 +402,7 @@ export default function TimeAnalysis() {
               className="stats-grid"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
             >
               {[
                 {
@@ -439,8 +439,8 @@ export default function TimeAnalysis() {
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{
-                    duration: 0.5,
-                    delay: 0.4 + index * 0.1,
+                    duration: 0.2,
+                    delay: 0.2 + index * 0.05,
                     ease: "easeOut"
                   }}
                 >
@@ -456,14 +456,14 @@ export default function TimeAnalysis() {
           className="charts-grid"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
           {/* 应用使用详情 */}
           <motion.div
             className="chart-card"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.2, delay: 0.45 }}
             whileHover={{
               y: -5,
               boxShadow: "0 15px 35px rgba(212, 165, 116, 0.15)"
@@ -472,7 +472,7 @@ export default function TimeAnalysis() {
             <motion.h2
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0, duration: 0.3 }}
+              transition={{ delay: 0.5, duration: 0.15 }}
             >
               应用使用详情
             </motion.h2>
@@ -481,7 +481,7 @@ export default function TimeAnalysis() {
                 className="modern-apps-container"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.1, duration: 0.4 }}
+                transition={{ delay: 0.55, duration: 0.2 }}
               >
                 {/* 现代化应用列表 */}
                 <div className="modern-app-list">
@@ -501,10 +501,10 @@ export default function TimeAnalysis() {
                       initial={{ opacity: 0, x: -50 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
-                        duration: 0.5,
-                        delay: 1.2 + index * 0.1,
+                        duration: 0.15,
+                        delay: 0.3 + index * 0.02,
                         type: "spring",
-                        stiffness: 80
+                        stiffness: 100
                       }}
                       whileHover={{
                         scale: 1.02,
@@ -542,7 +542,7 @@ export default function TimeAnalysis() {
                 className="no-data"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.1, duration: 0.3 }}
+                transition={{ delay: 0.55, duration: 0.15 }}
               >
                 <p>暂无数据</p>
               </motion.div>
@@ -554,7 +554,7 @@ export default function TimeAnalysis() {
             className="chart-card"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
+            transition={{ duration: 0.2, delay: 0.5 }}
             whileHover={{
               y: -5,
               boxShadow: "0 15px 35px rgba(212, 165, 116, 0.15)"
@@ -563,7 +563,7 @@ export default function TimeAnalysis() {
             <motion.h2
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1, duration: 0.3 }}
+              transition={{ delay: 0.55, duration: 0.15 }}
             >
               使用时长排行
             </motion.h2>
@@ -572,7 +572,7 @@ export default function TimeAnalysis() {
                 className="dashboard-container"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2, duration: 0.4 }}
+                transition={{ delay: 0.6, duration: 0.2 }}
               >
                 {/* 主要仪表盘 */}
                 <div className="main-dashboard">
@@ -591,7 +591,7 @@ export default function TimeAnalysis() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{
                           duration: 0.6,
-                          delay: 1.3,
+                          delay: 0.65,
                           ease: [0.25, 0.46, 0.45, 0.94]
                         }}
                       >
@@ -622,7 +622,7 @@ export default function TimeAnalysis() {
                               animate={{ strokeDashoffset }}
                               transition={{
                                 duration: 1.5,
-                                delay: 1.4,
+                                delay: 0.7,
                                 ease: [0.23, 1, 0.32, 1]
                               }}
                             />
@@ -635,7 +635,7 @@ export default function TimeAnalysis() {
                               style={{ backgroundColor: appColor }}
                               initial={{ opacity: 0, scale: 0.5 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 1.6, duration: 0.4 }}
+                              transition={{ delay: 0.8, duration: 0.2 }}
                               whileHover={{ scale: 1.1, rotate: 5 }}
                             >
                               <FontAwesomeIcon icon={getAppIcon(app.name, app.category)} />
@@ -644,7 +644,7 @@ export default function TimeAnalysis() {
                               className="gauge-percentage"
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 1.7, duration: 0.4 }}
+                              transition={{ delay: 0.85, duration: 0.2 }}
                             >
                               {percentage}%
                             </motion.div>
@@ -655,7 +655,7 @@ export default function TimeAnalysis() {
                           className="gauge-info"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 1.8, duration: 0.4 }}
+                          transition={{ delay: 0.9, duration: 0.2 }}
                         >
                           <div className="gauge-app-name">{app.name}</div>
                           <div className="gauge-app-time">{app.formattedDuration}</div>
@@ -683,7 +683,7 @@ export default function TimeAnalysis() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{
                           duration: 0.5,
-                          delay: 1.9 + index * 0.1,
+                          delay: 0.95 + index * 0.05,
                           ease: [0.25, 0.46, 0.45, 0.94]
                         }}
                         whileHover={{
@@ -719,7 +719,7 @@ export default function TimeAnalysis() {
                               animate={{ strokeDashoffset }}
                               transition={{
                                 duration: 1.2,
-                                delay: 2.0 + index * 0.1,
+                                delay: 1.0 + index * 0.05,
                                 ease: [0.23, 1, 0.32, 1]
                               }}
                             />
@@ -732,7 +732,7 @@ export default function TimeAnalysis() {
                               style={{ backgroundColor: appColor }}
                               initial={{ opacity: 0, scale: 0.5 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 2.1 + index * 0.1, duration: 0.3 }}
+                              transition={{ delay: 1.05 + index * 0.05, duration: 0.15 }}
                             >
                               <FontAwesomeIcon icon={getAppIcon(app.name, app.category)} />
                             </motion.div>
@@ -743,7 +743,7 @@ export default function TimeAnalysis() {
                           className="mini-gauge-info"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 2.2 + index * 0.1, duration: 0.3 }}
+                          transition={{ delay: 1.1 + index * 0.05, duration: 0.15 }}
                         >
                           <div className="mini-gauge-app-name">{app.name}</div>
                           <div className="mini-gauge-stats">
@@ -761,7 +761,7 @@ export default function TimeAnalysis() {
                 className="no-data"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2, duration: 0.3 }}
+                transition={{ delay: 0.6, duration: 0.15 }}
               >
                 <p>暂无数据</p>
               </motion.div>
@@ -777,7 +777,7 @@ export default function TimeAnalysis() {
           className="insights-card"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.5 }}
+          transition={{ duration: 0.3, delay: 0.75 }}
           whileHover={{
             y: -3,
             boxShadow: "0 20px 40px rgba(212, 165, 116, 0.12)"
@@ -786,7 +786,7 @@ export default function TimeAnalysis() {
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.6, duration: 0.4 }}
+            transition={{ delay: 0.8, duration: 0.2 }}
           >
             效率洞察
           </motion.h2>
@@ -794,21 +794,21 @@ export default function TimeAnalysis() {
             className="insights-grid"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.7, duration: 0.5 }}
+            transition={{ delay: 0.85, duration: 0.25 }}
           >
             {/* 工作模式效果 */}
             <motion.div
               className="insight-item"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.8, duration: 0.5 }}
+              transition={{ delay: 0.9, duration: 0.25 }}
               whileHover={{ scale: 1.02 }}
             >
               <motion.div
                 className="insight-header"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.9, duration: 0.3 }}
+                transition={{ delay: 0.95, duration: 0.15 }}
               >
                 <motion.div
                   className="insight-icon efficiency"
@@ -851,14 +851,14 @@ export default function TimeAnalysis() {
               className="insight-item"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 2.0, duration: 0.5 }}
+              transition={{ delay: 1.0, duration: 0.25 }}
               whileHover={{ scale: 1.02 }}
             >
               <motion.div
                 className="insight-header"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2.1, duration: 0.3 }}
+                transition={{ delay: 1.05, duration: 0.15 }}
               >
                 <motion.div
                   className="insight-icon distraction"
@@ -880,7 +880,7 @@ export default function TimeAnalysis() {
                     className="distraction-item"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 2.2, duration: 0.4 }}
+                    transition={{ delay: 1.1, duration: 0.2 }}
                     whileHover={{ scale: 1.02 }}
                   >
                     <div className="distraction-app-icon" style={{ backgroundColor: getAppColor(app.name, app.category) }}>
@@ -901,7 +901,7 @@ export default function TimeAnalysis() {
                       className="distraction-item no-distraction"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 2.2, duration: 0.4 }}
+                      transition={{ delay: 1.1, duration: 0.2 }}
                     >
                       <div className="distraction-app-icon success">
                         <FontAwesomeIcon icon={faCheck} />

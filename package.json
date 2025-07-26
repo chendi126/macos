@@ -1,7 +1,7 @@
 {
-  "name": "electron-react-app",
+  "name": "vctime",
   "version": "1.0.0",
-  "description": "A minimal Electron + React + TypeScript app",
+  "description": "VCTime - 桌面时间管理助手",
   "main": "out/main/index.js",
   "private": true,
   "scripts": {
