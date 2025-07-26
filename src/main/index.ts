@@ -14,24 +14,26 @@ let isQuiting = false
 function createTray() {
   const { nativeImage } = require('electron')
   
-  // 尝试使用项目中的 PNG 图标文件
+  // 使用与主窗口相同的图标路径逻辑
+  const iconPath = process.env.NODE_ENV === 'development' 
+    ? join(process.cwd(), 'resources', 'icon.png')
+    : join(__dirname, 'vctime-icon.png')
+  
   let icon: Electron.NativeImage
   
   try {
-    const iconPath = process.env.NODE_ENV === 'development' 
-      ? join(process.cwd(), 'resources', 'icon.png')
-      : join(__dirname, 'vctime-icon.png')
     const tempIcon = nativeImage.createFromPath(iconPath)
     
-    // 如果图标太大，调整大小为适合托盘的尺寸
+    // 如果图标加载成功，调整大小为适合托盘的尺寸
     if (tempIcon && !tempIcon.isEmpty()) {
       icon = tempIcon.resize({ width: 16, height: 16 })
     } else {
-      // 使用空图标，系统会提供默认图标
+      // 如果图标加载失败，使用空图标，系统会提供默认图标
+      console.log('托盘图标加载失败，使用默认图标')
       icon = nativeImage.createEmpty()
     }
   } catch (error) {
-    console.log('未找到图标文件，使用默认图标')
+    console.log('托盘图标加载异常，使用默认图标:', error)
     // 使用空图标，系统会提供默认图标
     icon = nativeImage.createEmpty()
   }
@@ -39,7 +41,7 @@ function createTray() {
   tray = new Tray(icon)
   
   // 设置托盘提示文本
-  tray.setToolTip('DesktopAide - 桌面助手')
+  tray.setToolTip('VCTime - 桌面时间管理助手')
   
   // 创建托盘菜单
   const contextMenu = Menu.buildFromTemplate([
@@ -121,7 +123,7 @@ function createWindow() {
       if (tray) {
         tray.displayBalloon({
           iconType: 'info',
-          title: 'DesktopAide',
+          title: 'VCTime',
           content: '应用已最小化到系统托盘，双击托盘图标可重新打开窗口'
         })
       }
