@@ -75,6 +75,29 @@ export interface FeishuConfig {
   tableId: string // 应用详细数据表ID
   summaryTableId: string // 汇总数据表ID
   blockTypeId: string
+  isTemplate?: boolean // 是否为模板配置
+  userId?: string // 用户ID，用于区分不同用户
+}
+
+export interface UserTableSetupResult {
+  success: boolean
+  config?: FeishuConfig
+  shareUrl?: string // 表格分享链接
+  accessInstructions?: string // 访问说明
+  error?: string
+}
+
+export interface UserLoginInfo {
+  isLoggedIn: boolean
+  userInfo?: any
+  userAccessToken?: string
+}
+
+export interface UserAuthResult {
+  success: boolean
+  userAccessToken?: string
+  userInfo?: any
+  error?: string
 }
 
 export interface ExportConfig {
@@ -82,6 +105,9 @@ export interface ExportConfig {
   autoExport: boolean
   exportInterval: number // 小时
   lastExportTime: number
+  autoOpenTable: boolean // 导出成功后自动打开表格
+  userId?: string // 用户ID
+  isUserTable?: boolean // 是否为用户独立表格
 }
 
 export interface ExportSummary {
@@ -159,6 +185,26 @@ declare global {
       disableAutoExport: () => Promise<boolean>
       getExportStatus: () => Promise<ExportStatus>
       exportAppUsageSummary: (date?: string) => Promise<ExportResult>
+      setAutoOpenTable: (enabled: boolean) => Promise<boolean>
+
+      // 用户表格管理
+      createUserTable: (templateConfig: FeishuConfig) => Promise<UserTableSetupResult>
+      isUsingSharedTable: () => Promise<boolean>
+      getUserId: () => Promise<string>
+
+      // 调试功能
+      debugTableStructure: () => Promise<void>
+
+      // 嵌入式表格
+      getEmbedUrls: () => Promise<{ detailUrl: string; summaryUrl: string } | null>
+
+      // 用户授权
+      generateUserAuthUrl: () => Promise<string | null>
+      waitForOAuthCallback: () => Promise<UserAuthResult>
+      handleUserAuthCallback: (code: string, state: string) => Promise<UserAuthResult>
+      getUserLoginInfo: () => Promise<UserLoginInfo>
+      userLogout: () => Promise<void>
+      createUserOwnedTable: () => Promise<UserTableSetupResult>
     }
   }
 }

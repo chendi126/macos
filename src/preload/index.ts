@@ -65,7 +65,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   enableAutoExport: (intervalHours: number) => ipcRenderer.invoke('enable-auto-export', intervalHours),
   disableAutoExport: () => ipcRenderer.invoke('disable-auto-export'),
   getExportStatus: () => ipcRenderer.invoke('get-export-status'),
-  exportAppUsageSummary: (date?: string) => ipcRenderer.invoke('export-app-usage-summary', date)
+  exportAppUsageSummary: (date?: string) => ipcRenderer.invoke('export-app-usage-summary', date),
+  setAutoOpenTable: (enabled: boolean) => ipcRenderer.invoke('set-auto-open-table', enabled),
+
+  // 用户表格管理
+  createUserTable: (templateConfig: any) => ipcRenderer.invoke('create-user-table', templateConfig),
+  isUsingSharedTable: () => ipcRenderer.invoke('is-using-shared-table'),
+  getUserId: () => ipcRenderer.invoke('get-user-id'),
+
+  // 调试功能
+  debugTableStructure: () => ipcRenderer.invoke('debug-table-structure')
 })
 
 console.log('Preload script loaded')

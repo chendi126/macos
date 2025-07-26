@@ -301,6 +301,28 @@ ipcMain.handle('export-app-usage-summary', async (event, date?: string) => {
   return dataExportManager.exportAppUsageSummary(date)
 })
 
+ipcMain.handle('set-auto-open-table', async (event, enabled: boolean) => {
+  return dataExportManager.setAutoOpenTable(enabled)
+})
+
+// 用户表格管理
+ipcMain.handle('create-user-table', async (event, templateConfig: any) => {
+  return dataExportManager.createUserTable(templateConfig)
+})
+
+ipcMain.handle('is-using-shared-table', async () => {
+  return dataExportManager.isUsingSharedTable()
+})
+
+ipcMain.handle('get-user-id', async () => {
+  return dataExportManager.getUserId()
+})
+
+// 调试表格结构
+ipcMain.handle('debug-table-structure', async () => {
+  return dataExportManager.debugTableStructure()
+})
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
