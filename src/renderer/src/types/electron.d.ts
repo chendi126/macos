@@ -58,6 +58,54 @@ export interface WorkMode {
   updatedAt: number
 }
 
+export interface WorkModeSession {
+  id: string
+  modeId: string
+  startTime: number
+  endTime?: number
+  productiveTime: number // 在工作桌面上的时间
+  distractingTime: number // 离开工作桌面的时间
+  workDesktopId?: string // 工作桌面ID（如果可获取）
+}
+
+export interface FeishuConfig {
+  appId: string
+  appSecret: string
+  appToken: string
+  tableId: string // 应用详细数据表ID
+  summaryTableId: string // 汇总数据表ID
+  blockTypeId: string
+}
+
+export interface ExportConfig {
+  feishu: FeishuConfig
+  autoExport: boolean
+  exportInterval: number // 小时
+  lastExportTime: number
+}
+
+export interface ExportSummary {
+  date: string
+  totalRecords: number
+  appRecords: number
+  sessionRecords: number
+  success: boolean
+  error?: string
+}
+
+export interface ExportResult {
+  success: boolean
+  summary: ExportSummary[]
+  error?: string
+}
+
+export interface ExportStatus {
+  configured: boolean
+  autoExport: boolean
+  exportInterval: number
+  lastExportTime: number
+}
+
 declare global {
   interface Window {
     electronAPI: {
@@ -99,6 +147,18 @@ declare global {
       
       // Windows 资源管理器
       openWindowsExplorer: (path?: string) => Promise<boolean>
+
+      // 数据导出相关API
+      setFeishuConfig: (config: FeishuConfig) => Promise<boolean>
+      getExportConfig: () => Promise<ExportConfig | null>
+      testFeishuConnection: () => Promise<{ success: boolean; message: string }>
+      exportTodayData: () => Promise<ExportResult>
+      exportDateData: (date: string) => Promise<ExportResult>
+
+      enableAutoExport: (intervalHours: number) => Promise<boolean>
+      disableAutoExport: () => Promise<boolean>
+      getExportStatus: () => Promise<ExportStatus>
+      exportAppUsageSummary: (date?: string) => Promise<ExportResult>
     }
   }
 }
