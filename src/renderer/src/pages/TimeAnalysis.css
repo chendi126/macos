@@ -114,12 +114,15 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .date-selector label {
   font-size: 14px;
   font-weight: 500;
   color: #2C2C2C;
+  white-space: nowrap;
 }
 
 .date-input-wrapper {
@@ -127,6 +130,7 @@
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
+  flex: 1;
 }
 
 .date-input {
@@ -138,7 +142,8 @@
   color: #2A2520;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 180px;
+  width: 100%;
+  min-width: 0;
   backdrop-filter: blur(10px);
   font-weight: 500;
 }
@@ -757,14 +762,62 @@
   gap: 12px;
 }
 
-.time-slot,
-.distraction-item {
+.time-slot {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
   background-color: white;
   border-radius: 6px;
+}
+
+.distraction-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 252, 250, 0.9) 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(240, 238, 237, 0.3);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.distraction-item:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 252, 250, 0.95) 100%);
+  border-color: rgba(212, 165, 116, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.1);
+}
+
+.distraction-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.distraction-app-icon.success {
+  background-color: #7A9B6C;
+}
+
+.distraction-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.source-category {
+  font-size: 11px;
+  color: #8B8073;
+  opacity: 0.8;
 }
 
 .time-dot {
@@ -792,6 +845,16 @@
 .time-spent {
   font-size: 12px;
   color: #8B8073;
+  font-weight: 500;
+  padding: 4px 8px;
+  background-color: rgba(139, 128, 115, 0.1);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.time-spent.success {
+  color: #7A9B6C;
+  background-color: rgba(122, 155, 108, 0.1);
 }
 
 .suggestions-list {
@@ -910,6 +973,22 @@
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr 80px 1fr;
+    gap: 12px;
+  }
+
+  .modern-app-name {
+    font-size: 13px;
+  }
+
+  .modern-chart-bars {
+    padding: 16px;
+  }
+}
+
 @media (max-width: 1024px) {
   .time-analysis .main-content {
     padding: 16px;
@@ -917,86 +996,1383 @@
   
   .charts-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
   
   .insights-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr 70px 1fr;
+    gap: 10px;
+    padding: 14px 18px;
+  }
+
+  .modern-app-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  .modern-chart-bars {
+    height: 180px;
+    padding: 16px;
+  }
+
+  .modern-bar {
+    width: 36px;
+  }
+
+  .insights-card {
+    padding: 24px;
+  }
+
+  .chart-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .modern-app-category {
+    display: none;
+  }
+
+  .modern-chart-bars {
+    height: 160px;
   }
 }
 
 @media (max-width: 768px) {
-  .analysis-header {
+  .time-analysis .main-content {
+    padding: 12px;
+  }
+
+  .content-header {
     flex-direction: column;
-    height: auto;
-    padding: 16px;
+    align-items: flex-start;
     gap: 16px;
   }
-  
-  .header-left {
+
+  .date-selector {
     width: 100%;
-    justify-content: space-between;
   }
-  
-  .header-controls {
+
+  .date-input {
     width: 100%;
-    justify-content: space-between;
+    min-width: auto;
   }
-  
-  .time-range-selector {
-    flex-wrap: wrap;
-  }
-  
-  .overview-stats {
+
+  .stats-grid {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-  
+
+  .stats-card {
+    padding: 16px;
+  }
+
+  .stats-value {
+    font-size: 20px;
+  }
+
   .chart-card {
     padding: 16px;
   }
-  
-  .chart-placeholder {
-    height: 200px;
+
+  .chart-card h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
   }
-  
-  .analysis-table {
+
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr 80px;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .modern-app-category {
+    display: none;
+  }
+
+  .modern-app-name {
+    font-size: 13px;
+  }
+
+  .modern-app-time {
     font-size: 12px;
   }
-  
-  .analysis-table th,
-  .analysis-table td {
+
+  .modern-app-percentage {
+    font-size: 12px;
+  }
+
+  .modern-chart-bars {
+    height: 140px;
+    padding: 12px;
+  }
+
+  .modern-bar {
+    width: 28px;
+  }
+
+  .modern-bar-value {
+    font-size: 9px;
+    top: -20px;
+  }
+
+  .modern-bar-label span {
+    font-size: 10px;
+    max-width: 50px;
+  }
+
+  .bar-app-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  .insights-card {
+    padding: 20px;
+  }
+
+  .insights-card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .insight-item {
+    padding: 16px;
+  }
+
+  .distraction-item {
+    padding: 12px;
+  }
+
+  .distraction-app-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .source-label {
+    font-size: 13px;
+  }
+
+  .time-spent {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+/* 现代化应用列表样式 */
+.modern-apps-container {
+  width: 100%;
+}
+
+.modern-app-list {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 252, 250, 0.95) 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(240, 238, 237, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.modern-list-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(249, 247, 244, 0.9) 0%, rgba(245, 242, 239, 0.9) 100%);
+  font-size: 12px;
+  font-weight: 600;
+  color: #8B8073;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(240, 238, 237, 0.3);
+}
+
+.modern-app-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(240, 238, 237, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.modern-app-row:hover {
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.05) 0%, rgba(212, 165, 116, 0.02) 100%);
+  border-left: 3px solid var(--app-color);
+}
+
+.modern-app-row:last-child {
+  border-bottom: none;
+}
+
+.modern-app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modern-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.modern-app-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2A2520;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.modern-app-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--app-color);
+}
+
+.modern-app-category {
+  display: flex;
+  align-items: center;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2A2520;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.modern-app-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(240, 238, 237, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.modern-app-row:hover {
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.05) 0%, rgba(212, 165, 116, 0.02) 100%);
+  border-left: 3px solid var(--app-color);
+}
+
+.modern-app-row:last-child {
+  border-bottom: none;
+}
+
+.modern-app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modern-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.modern-app-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2A2520;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.modern-app-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--app-color);
+}
+
+.modern-app-category {
+  display: flex;
+  align-items: center;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2A2520;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+/* 现代化图表条样式 */
+.modern-chart-bars {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 200px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(249, 247, 244, 0.5) 0%, rgba(245, 242, 239, 0.5) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(240, 238, 237, 0.3);
+}
+
+.modern-chart-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 80px;
+}
+
+.modern-bar {
+  width: 40px;
+  background: linear-gradient(180deg, var(--bar-color) 0%, var(--bar-color-dark) 100%);
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.modern-bar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modern-bar-value {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: #2A2520;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-bar-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.bar-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modern-bar-label span {
+  font-size: 11px;
+  color: #2A2520;
+  font-weight: 500;
+  max-width: 60px;
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+
+@media (max-width: 480px) {
+  .time-analysis .main-content {
+    padding: 8px;
+  }
+
+  .content-header {
+    margin-bottom: 16px;
+  }
+
+  .date-selector label {
+    font-size: 12px;
+  }
+
+  .date-input {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stats-card {
+    padding: 12px;
+  }
+
+  .stats-title {
+    font-size: 12px;
+  }
+
+  .stats-value {
+    font-size: 18px;
+    margin: 8px 0 4px 0;
+  }
+
+  .stats-change {
+    font-size: 11px;
+  }
+
+  .stats-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .charts-grid {
+    gap: 16px;
+  }
+
+  .chart-card {
+    padding: 12px;
+  }
+
+  .chart-card h2 {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .modern-list-header {
+    font-size: 10px;
+  }
+
+  .modern-app-category,
+  .modern-app-percentage {
+    display: none;
+  }
+
+  .modern-app-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .modern-app-name {
+    font-size: 12px;
+  }
+
+  .modern-app-time {
+    font-size: 11px;
+  }
+
+  .modern-chart-bars {
+    height: 120px;
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .modern-chart-bar {
+    gap: 8px;
+  }
+
+  .modern-bar {
+    width: 24px;
+  }
+
+  .modern-bar-value {
+    font-size: 8px;
+    top: -18px;
+    padding: 1px 4px;
+  }
+
+  .modern-bar-label span {
+    font-size: 9px;
+    max-width: 40px;
+  }
+
+  .bar-app-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 8px;
+  }
+
+  .insights-card {
+    padding: 16px;
+  }
+
+  .insights-card h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .insights-grid {
+    gap: 12px;
+  }
+
+  .insight-item {
+    padding: 12px;
+  }
+
+  .insight-header h3 {
+    font-size: 14px;
+  }
+
+  .insight-description {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .distraction-item {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .distraction-app-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .source-label {
+    font-size: 12px;
+  }
+
+  .source-category {
+    font-size: 10px;
+  }
+
+  .time-spent {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .time-slot {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .time-label {
+    font-size: 12px;
+  }
+
+  .efficiency-score {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .suggestions-list li {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .suggestions-list span {
+    font-size: 12px;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+  .time-analysis .main-content {
+    padding: 4px;
+  }
+
+  .modern-list-header,
+  .modern-app-row {
+    padding: 6px 8px;
+  }
+
+  .modern-app-info {
+    gap: 6px;
+  }
+
+  .modern-chart-bars {
+    height: 100px;
+    padding: 4px;
+  }
+
+  .modern-bar {
+    width: 20px;
+  }
+
+  .insights-card {
+    padding: 12px;
+  }
+
+  .insight-item {
     padding: 8px;
   }
 }
 
-@media (max-width: 480px) {
-  .analysis-header {
+/* 仪表盘样式 */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.main-dashboard {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.primary-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.gauge-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-svg {
+  filter: drop-shadow(0 4px 12px rgba(212, 165, 116, 0.2));
+}
+
+.gauge-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.gauge-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.gauge-percentage {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2A2520;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.gauge-info {
+  text-align: center;
+  max-width: 140px;
+}
+
+.gauge-app-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2A2520;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+}
+
+.gauge-app-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #D4A574;
+  font-family: 'SF Mono', 'Monaco', monospace;
+  margin-bottom: 4px;
+}
+
+.gauge-app-category {
+  font-size: 12px;
+  color: #8B8073;
+  opacity: 0.8;
+}
+
+/* 次要仪表盘 */
+.secondary-dashboards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  justify-items: center;
+}
+
+.secondary-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(249, 247, 244, 0.6) 0%, rgba(245, 242, 239, 0.6) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(240, 238, 237, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.secondary-gauge:hover {
+  background: linear-gradient(135deg, rgba(249, 247, 244, 0.8) 0%, rgba(245, 242, 239, 0.8) 100%);
+  border-color: rgba(212, 165, 116, 0.4);
+  box-shadow: 0 8px 25px rgba(212, 165, 116, 0.15);
+}
+
+.mini-gauge-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-gauge-svg {
+  filter: drop-shadow(0 2px 8px rgba(212, 165, 116, 0.15));
+}
+
+.mini-gauge-center {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-gauge-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mini-gauge-info {
+  text-align: center;
+  max-width: 100px;
+}
+
+.mini-gauge-app-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2A2520;
+  margin-bottom: 6px;
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+
+.mini-gauge-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mini-gauge-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: #D4A574;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.mini-gauge-percentage {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8B8073;
+}
+
+/* 响应式设计 - 仪表盘 */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    gap: 20px;
+    padding: 16px 0;
+  }
+
+  .secondary-dashboards {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .secondary-gauge {
     padding: 12px;
+    min-width: 100px;
   }
-  
-  .analysis-content {
-    padding: 12px;
+
+  .gauge-app-name {
+    font-size: 15px;
   }
-  
-  .overview-stats {
-    grid-template-columns: 1fr;
+
+  .gauge-app-time {
+    font-size: 13px;
   }
-  
-  .overview-card {
-    padding: 16px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    gap: 16px;
+    padding: 12px 0;
   }
-  
-  .overview-value {
-    font-size: 24px;
+
+  .main-dashboard {
+    margin-bottom: 16px;
   }
-  
-  .range-button,
-  .export-button {
-    padding: 6px 12px;
+
+  .gauge-container {
+    transform: scale(0.9);
+  }
+
+  .gauge-app-name {
+    font-size: 14px;
+  }
+
+  .gauge-app-time {
+    font-size: 12px;
+  }
+
+  .secondary-dashboards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .secondary-gauge {
+    padding: 10px;
+    min-width: 90px;
+  }
+
+  .mini-gauge-container {
+    transform: scale(0.9);
+  }
+
+  .mini-gauge-app-name {
+    font-size: 12px;
+  }
+
+  .mini-gauge-time {
+    font-size: 10px;
+  }
+
+  .mini-gauge-percentage {
     font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .gauge-container {
+    transform: scale(0.8);
+  }
+
+  .gauge-app-name {
+    font-size: 13px;
+  }
+
+  .gauge-app-time {
+    font-size: 11px;
+  }
+
+  .gauge-app-category {
+    font-size: 11px;
+  }
+
+  .secondary-dashboards {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .secondary-gauge {
+    padding: 8px;
+    min-width: 80px;
+  }
+
+  .mini-gauge-container {
+    transform: scale(0.8);
+  }
+
+  .mini-gauge-app-name {
+    font-size: 11px;
+  }
+
+  .mini-gauge-time {
+    font-size: 9px;
+  }
+
+  .mini-gauge-percentage {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .secondary-dashboards {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .secondary-gauge {
+    padding: 6px;
+    min-width: 70px;
+  }
+
+  .gauge-container {
+    transform: scale(0.7);
+  }
+
+  .mini-gauge-container {
+    transform: scale(0.7);
+  }
+}
+
+/* 横向柱状图样式 (保留作为备用) */
+.horizontal-chart-container {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.horizontal-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.horizontal-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 252, 250, 0.9) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(240, 238, 237, 0.3);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 60px;
+}
+
+.horizontal-bar-item:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 252, 250, 0.95) 100%);
+  border-color: rgba(212, 165, 116, 0.4);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.15);
+  transform: translateY(-2px);
+}
+
+.horizontal-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 160px;
+  flex-shrink: 0;
+}
+
+.horizontal-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.horizontal-app-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.horizontal-app-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2A2520;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.horizontal-app-category {
+  font-size: 12px;
+  color: #8B8073;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.horizontal-bar-chart {
+  flex: 1;
+  position: relative;
+  height: 28px;
+  background: linear-gradient(135deg, rgba(240, 238, 237, 0.4) 0%, rgba(240, 238, 237, 0.2) 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.horizontal-bar-bg {
+  height: 100%;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.horizontal-bar-value {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: #2A2520;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.horizontal-bar-percentage {
+  font-size: 14px;
+  font-weight: 700;
+  color: #D4A574;
+  min-width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 表格样式 */
+.app-details-table {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 252, 250, 0.95) 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(240, 238, 237, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 80px 1fr;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(249, 247, 244, 0.9) 0%, rgba(245, 242, 239, 0.9) 100%);
+  font-size: 12px;
+  font-weight: 600;
+  color: #8B8073;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(240, 238, 237, 0.3);
+}
+
+.table-header > div {
+  display: flex;
+  align-items: center;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 80px 1fr;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(240, 238, 237, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.table-row:hover {
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.05) 0%, rgba(212, 165, 116, 0.02) 100%);
+  border-left: 3px solid rgba(212, 165, 116, 0.5);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+}
+
+.table-app-cell {
+  gap: 12px;
+}
+
+.table-app-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.table-app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2A2520;
+}
+
+.table-time-cell {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2A2520;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.table-percentage-cell {
+  font-size: 14px;
+  font-weight: 500;
+  color: #D4A574;
+  justify-content: center;
+}
+
+.table-category-cell {
+  justify-content: flex-start;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2A2520;
+  border: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+/* 响应式设计 - 横向图表和表格 */
+@media (max-width: 1024px) {
+  .modern-list-header,
+  .modern-app-row {
+    grid-template-columns: 2fr 1fr 70px 1fr;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .horizontal-bar-info {
+    min-width: 140px;
+  }
+
+  .horizontal-bars {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 2fr 1fr 60px;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .table-category-cell {
+    display: none;
+  }
+
+  .table-app-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .table-app-name {
+    font-size: 13px;
+  }
+
+  .table-time-cell {
+    font-size: 12px;
+  }
+
+  .table-percentage-cell {
+    font-size: 12px;
+  }
+
+  .horizontal-bar-info {
+    min-width: 120px;
+  }
+
+  .horizontal-app-name {
+    font-size: 13px;
+  }
+
+  .horizontal-app-category {
+    font-size: 11px;
+  }
+
+  .horizontal-app-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .horizontal-bar-chart {
+    height: 24px;
+  }
+
+  .horizontal-bar-value {
+    font-size: 11px;
+    padding: 3px 6px;
+    right: 8px;
+  }
+
+  .horizontal-bar-percentage {
+    font-size: 12px;
+    min-width: 45px;
+  }
+
+  .horizontal-bars {
+    gap: 14px;
+  }
+
+  .horizontal-bar-item {
+    gap: 16px;
+    padding: 12px;
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 2fr 1fr;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .table-percentage-cell,
+  .table-category-cell {
+    display: none;
+  }
+
+  .table-app-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .table-app-name {
+    font-size: 12px;
+  }
+
+  .table-time-cell {
+    font-size: 11px;
+  }
+
+  .horizontal-bars {
+    gap: 12px;
+  }
+
+  .horizontal-bar-item {
+    gap: 12px;
+    padding: 10px;
+    min-height: 44px;
+  }
+
+  .horizontal-bar-info {
+    min-width: 100px;
+  }
+
+  .horizontal-app-details {
+    gap: 2px;
+  }
+
+  .horizontal-app-name {
+    font-size: 12px;
+  }
+
+  .horizontal-app-category {
+    display: none;
+  }
+
+  .horizontal-app-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .horizontal-bar-chart {
+    height: 20px;
+  }
+
+  .horizontal-bar-value {
+    font-size: 10px;
+    padding: 2px 4px;
+    right: 6px;
+  }
+
+  .horizontal-bar-percentage {
+    font-size: 11px;
+    min-width: 35px;
   }
 }

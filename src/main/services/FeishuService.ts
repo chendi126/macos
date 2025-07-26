@@ -207,56 +207,25 @@ export class FeishuService {
 
   // 计算效率统计（与前端AppContext中的逻辑完全一致）
   private calculateEfficiencyStats(apps: { [key: string]: any }, usageData?: any) {
-    const productiveCategories = ['开发工具', '工作效率', '设计与创意']
     const distractingCategories = ['娱乐', '通讯与社交']
 
-    let productiveTime = 0
     let distractingTime = 0
     let totalTime = 0
 
     // 计算各应用的时间分类
     Object.values(apps).forEach((app: any) => {
       totalTime += app.duration
-      if (productiveCategories.includes(app.category || '')) {
-        productiveTime += app.duration
-      } else if (distractingCategories.includes(app.category || '')) {
+      if (distractingCategories.includes(app.category || '')) {
         distractingTime += app.duration
       }
     })
 
-    // 如果有工作模式时间数据，采用简化逻辑：
-    // 工作模式时间直接替换为高效时间
-    if (usageData && usageData.workModeTime > 0) {
-      // 使用usageData.totalTime作为总时长基准（这是AppTracker计算的实时总时长）
-      const realTotalTime = usageData.totalTime || totalTime
-
-      // 计算非工作模式时间
-      const nonWorkModeTime = realTotalTime - usageData.workModeTime
-
-      // 重新分配时间：工作模式时间全部为高效时间
-      productiveTime = usageData.workModeTime
-
-      // 非工作模式时间按原有逻辑分配
-      let nonWorkModeProductiveTime = 0
-      let nonWorkModeDistractingTime = 0
-
-      Object.values(apps).forEach((app: any) => {
-        // 这里简化处理，假设应用时间均匀分布在工作模式和非工作模式中
-        const appNonWorkModeTime = nonWorkModeTime > 0 ?
-          app.duration * (nonWorkModeTime / totalTime) : 0
-
-        if (productiveCategories.includes(app.category || '')) {
-          nonWorkModeProductiveTime += appNonWorkModeTime
-        } else if (distractingCategories.includes(app.category || '')) {
-          nonWorkModeDistractingTime += appNonWorkModeTime
-        }
-      })
-
-      productiveTime += nonWorkModeProductiveTime
-      distractingTime = nonWorkModeDistractingTime
-
-      // 使用实际的总时长
-      totalTime = realTotalTime
+    // 只有工作模式时间算作高效时间
+    const productiveTime = usageData?.workModeTime || 0
+    
+    // 使用实际的总时长（如果有的话）
+    if (usageData?.totalTime) {
+      totalTime = usageData.totalTime
     }
 
     const neutralTime = totalTime - productiveTime - distractingTime
