@@ -8,7 +8,11 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "start": "electron-vite start"
+    "start": "electron-vite start",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
+    "dist": "npm run build && electron-builder"
   },
   "keywords": [
     "electron",
@@ -25,6 +29,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
     "electron": "^37.2.4",
+    "electron-builder": "^26.0.12",
     "electron-vite": "^3.1.0",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
@@ -48,5 +53,41 @@
     "node-schedule": "^2.1.1",
     "react-router-dom": "^6.8.1",
     "tailwind-merge": "^3.3.1"
+  },
+  "build": {
+    "appId": "com.vctime.app",
+    "productName": "VCTime",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerHeaderIcon": "resources/icon.ico"
+    },
+    "mac": {
+      "icon": "resources/icon.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "icon": "resources/icon.png",
+      "category": "Office"
+    }
   }
 }
