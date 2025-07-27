@@ -95,8 +95,14 @@
       "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "linux": {
-      "icon": "resources/icon.png",
-      "category": "Office"
+      "icon": "resources/icon.ico",
+      "category": "Office",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ]
     }
   }
 }
