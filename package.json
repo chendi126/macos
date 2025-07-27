@@ -82,7 +82,7 @@
       "installerHeaderIcon": "resources/icon.ico"
     },
     "mac": {
-      "icon": "resources/icon.ico",
+      "icon": "resources/icon.png",
       "category": "public.app-category.productivity",
       "target": [
         {
@@ -95,7 +95,7 @@
       "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "linux": {
-      "icon": "resources/icon.ico",
+      "icon": "resources/icon.png",
       "category": "Office",
       "target": [
         {
